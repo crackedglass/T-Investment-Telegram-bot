@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
 
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
+import com.example.tgbotdemo.services.ChatService;
 import com.example.tgbotdemo.services.ListenerService;
 import com.example.tgbotdemo.utils.ExcelUtil;
 import com.pengrad.telegrambot.TelegramBot;
@@ -34,12 +35,12 @@ public class AdminActionsConfig {
 
     private Keyboard adminKeyboard = new ReplyKeyboardMarkup(
             new KeyboardButton[][] {
+                    { new KeyboardButton("Остановить вложения") },
                     { new KeyboardButton("Добавить серебро пользователям") },
                     { new KeyboardButton("Загрузить таблицу с пользователями") },
-                    { new KeyboardButton("Загрузить карту") },
-                    { new KeyboardButton("Закрепить клетки за гильдиями") },
-                    { new KeyboardButton("Применить изменения") },
-                    { new KeyboardButton("Выйти в главное меню") }
+                    { new KeyboardButton("Загрузить карту") }, // TODO
+                    { new KeyboardButton("Закрепить клетки за гильдиями") }, // TODO
+                    { new KeyboardButton("Выйти в главное меню") } // TODO
             });
 
     @Bean
@@ -110,4 +111,16 @@ public class AdminActionsConfig {
             });
         };
     }
+
+    // TODO
+    @Bean
+    public Action<ChatStates, String> stopTrades() {
+        return context -> {
+            Message message = (Message) context.getExtendedState().getVariables().get("msg");
+            bot.execute(new SendMessage(message.chat().id(),
+                    "Сейчас пользователи не могут делать вложения, они станут доступны после выхода из админ-меню"));
+
+        };
+    }
+
 }

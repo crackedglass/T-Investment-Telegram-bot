@@ -35,4 +35,8 @@ public class ListenerService {
             return false;
         return true;
     }
+
+    public void dropAllListeners() {
+        listeners = new HashMap<>();
+    }
 }

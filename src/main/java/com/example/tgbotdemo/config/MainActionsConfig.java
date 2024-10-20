@@ -69,7 +69,7 @@ public class MainActionsConfig {
     public Action<ChatStates, String> start() {
         return context -> {
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
-            bot.execute(new SendMessage(message.chat().id(), "Да начнется битва!\r\n" + //
+            bot.execute(new SendMessage(message.chat().id(), "*Да начнется битва!*\r\n" + //
                     "\r\n" + //
                     "Привет и добро пожаловать в гильдию! Вам предстоит сложная задача — бороться за контроль над территориями. В этом поможет бот.\r\n"
                     + //
@@ -77,7 +77,7 @@ public class MainActionsConfig {
                     "Здесь вы сможете узнать, сколько серебра у вас и вашей гильдии, вложиться в территории и следить, чтобы никто не увел ваш участок из-под носа.\r\n"
                     + //
                     "\r\n" + //
-                    "").replyMarkup(menuKeyboard));
+                    "").parseMode(ParseMode.Markdown).replyMarkup(menuKeyboard));
         };
     }
 
@@ -283,7 +283,7 @@ public class MainActionsConfig {
 
                         if (orders.size() == 0) {
                             bot.execute(new SendMessage(message.chat().id(),
-                                    "До этой клетки пока никто не добрался.\nИнвестируйте в территориии и помогите своей гильдии до неё добраться!")
+                                    "Эта клетка не принадлежит никакой гильдии\n\nИнвестируйте и помогайте своей гильдии захватывать территории.")
                                     .replyMarkup(menuKeyboard));
                             sm.sendEvent("BACK_TO_MENU");
                             return;

@@ -1,19 +1,14 @@
 package com.example.tgbotdemo.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +18,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -146,6 +140,7 @@ public class ExcelUtil {
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
+            log.info(String.format("File downloaded"));
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -154,19 +149,24 @@ public class ExcelUtil {
         try (FileInputStream fileStream = new FileInputStream(new File("new_users.xlsx"))) {
             Workbook workbook = new XSSFWorkbook(fileStream);
             int sheets = workbook.getNumberOfSheets();
-            for (int i = 1; i < sheets; i++) {
-                Sheet sheet = workbook.getSheetAt(i);
+            for (Sheet sheet : workbook) {
                 String guildName = sheet.getSheetName();
                 Guild guild = new Guild(guildName);
                 guildService.save(guild);
                 for (Row row : sheet) {
                     String username = row.getCell(0).getStringCellValue();
+                    User user = userService.getByUsername(username);
                     Optional<Cell> moneyCell = Optional.ofNullable(row.getCell(1));
-                    if (moneyCell.isPresent()) {
-                        int money = (int) moneyCell.get().getNumericCellValue();
+                    int money = 0;
+                    if (moneyCell.isPresent())
+                        money = (int) moneyCell.get().getNumericCellValue();
+
+                    if (user == null)
                         userService.save(new User(username, money, guild));
-                    } else {
-                        userService.save(new User(username, 0, guild));
+                    else {
+                        user.setMoney(money);
+                        user.setGuild(guild);
+                        userService.save(user);
                     }
                 }
             }

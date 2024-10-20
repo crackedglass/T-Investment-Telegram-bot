@@ -3,7 +3,7 @@ package com.example.tgbotdemo.domain.statemachine;
 public enum ChatStates {
 
     // Main menu
-    AUTH, MAIN, ORDER_ASKING_CELL, ORDER_ASKING_AMOUNT,
+    MAIN, ORDER_ASKING_CELL, ORDER_ASKING_AMOUNT,
     ASKING_ACTION, ASKING_TO_DELETE, INFO_ASKING_CELL,
 
     // Admin menu

@@ -24,16 +24,16 @@ public class User {
     @GeneratedValue
     @Column(name = "user_id")
     private long userId;
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
     @Column(name = "money")
     private int money;
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
-    private ChatStates state = ChatStates.AUTH;
+    private ChatStates state = ChatStates.MAIN;
 
     @ManyToOne
-    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = false)
+    @JoinColumn(name = "guild_id", referencedColumnName = "guild_id", nullable = true)
     private Guild guild;
 
     protected User() {

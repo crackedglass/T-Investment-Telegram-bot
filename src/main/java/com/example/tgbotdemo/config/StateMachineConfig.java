@@ -36,7 +36,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
             throws Exception {
         states
                 .withStates()
-                .initial(ChatStates.AUTH)
+                .initial(ChatStates.MAIN)
                 .states(EnumSet.allOf(ChatStates.class));
     }
 
@@ -44,18 +44,9 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
     public void configure(StateMachineTransitionConfigurer<ChatStates, String> transitions)
             throws Exception {
         transitions
-                // From AUTH state
-                .withExternal()
-                .source(ChatStates.AUTH).target(ChatStates.MAIN).event("AUTH_APPROVED")
-                .action(mainActionsConfig.start())
-                .and()
-                .withInternal()
-                .source(ChatStates.AUTH).event("AUTH_DECLINED").action(mainActionsConfig.declined())
-                .and()
-                .withExternal()
-                .source(ChatStates.AUTH).target(ChatStates.ADMIN).event("/admin")
-                .guard(guardsConfig.adminGuard())
                 // From MAIN state
+                .withInternal()
+                .source(ChatStates.MAIN).event("/start").action(mainActionsConfig.start())
                 .and()
                 .withInternal()
                 .source(ChatStates.MAIN).event("сколько серебра у моей гильдии")
@@ -124,7 +115,10 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withInternal()
                 .source(ChatStates.ADMIN).event("загрузить таблицу с пользователями")
-                .action(adminActionsConfig.loadUsers());
+                .action(adminActionsConfig.loadUsers())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("остановить вложения").action(adminActionsConfig.stopTrades()); // TODO
     }
 
     @Override

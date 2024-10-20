@@ -8,10 +8,13 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
+import com.example.tgbotdemo.domain.Admin;
 import com.example.tgbotdemo.domain.User;
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,53 +40,63 @@ public class ChatService {
     @Autowired
     private UserService userService;
 
-    private Map<String, StateMachine<ChatStates, String>> stateMachines;
+    @Autowired
+    private AdminService adminService;
 
-    private List<String> admin_list = List.of(
-            "ya_qlgn",
-            "Ereteik",
-            "mymarichko");
+    private Map<String, StateMachine<ChatStates, String>> stateMachines;
+    private boolean ready;
 
     public ChatService() {
         stateMachines = new HashMap<>();
+        ready = true;
     }
 
     public void handleMessage(Message message) {
+        log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id());
+
+        List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername()).toList();
+
         User user = userService.getByUsername(message.chat().username());
 
-        log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id());
-        if (message.text() != null)
-            if (message.text().equals("/start")) {
-                log.info("Start detected");
-                if (user == null) {
-                    bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире"));
-                    return;
-                }
-
-                if (listenerService.chatHaveListener(message.chat()))
-                    listenerService.popListenerFromChat(message.chat());
-
-                stateMachines.put(user.getUsername(), factory.getStateMachine());
-                stateMachines.get(user.getUsername()).sendEvent("AUTH_APPROVED");
-            } else if (message.text().equals("/admin")) {
-                if (admin_list.contains(message.chat().username())) {
-                    stateMachines.put(message.chat().username(), factory.getStateMachine());
-                    stateMachines.get(message.chat().username()).sendEvent("");
-                }
-            }
-
-        if (user == null)
+        if (user == null && admins.contains(message.chat().username())) {
+            userService.save(new User(message.chat().username(), 0, null));
+            user = userService.getByUsername(message.chat().username());
+        } else if (user == null && !admins.contains(message.chat().username())) {
+            bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире")
+                    .replyMarkup(new ReplyKeyboardRemove()));
             return;
-        ChatStates state = user.getState();
+        }
 
-        if (stateMachines.get(message.chat().username()) == null) {
+        if (stateMachines.get(user.getUsername()) == null) {
+            ChatStates state = user.getState();
             stateMachines.put(message.chat().username(), factory.getStateMachine());
             stateMachines.get(message.chat().username()).getStateMachineAccessor().doWithAllRegions(
                     action -> action.resetStateMachine(new DefaultStateMachineContext<>(state, null, null, null)));
         }
+
         StateMachine<ChatStates, String> sm = stateMachines.get(message.chat().username());
 
         sm.getExtendedState().getVariables().put("msg", message);
+
+        if (message.document() != null && listenerService.chatHaveListener(message.chat())) {
+            MessageListener listener = listenerService.popListenerFromChat(message.chat());
+            listener.process(message);
+            return;
+        }
+
+        if (message.text() == null)
+            return;
+        if (message.text().equals("/start")) {
+            sm.getStateMachineAccessor().doWithAllRegions(access -> access
+                    .resetStateMachine(new DefaultStateMachineContext<>(ChatStates.MAIN, "/start", null, null)));
+        }
+
+        if (ready == false) {
+            listenerService.dropAllListeners();
+            bot.execute(new SendMessage(message.chat().id(),
+                    "Счетовод рисует новую карту, скоро снова можно будет инвестировать в клетки!"));
+        }
+
         if (listenerService.chatHaveListener(message.chat())) {
             MessageListener listener = listenerService.popListenerFromChat(message.chat());
             listener.process(message);
@@ -98,4 +111,11 @@ public class ChatService {
         log.info(sm.getState().toString());
     }
 
+    public void setNotReady() {
+        ready = false;
+    }
+
+    public void setReady() {
+        ready = true;
+    }
 }

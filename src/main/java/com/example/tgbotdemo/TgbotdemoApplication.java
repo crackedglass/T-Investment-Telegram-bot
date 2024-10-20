@@ -11,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
 import com.example.tgbotdemo.domain.*;
+import com.example.tgbotdemo.services.AdminService;
 import com.example.tgbotdemo.services.CellService;
 import com.example.tgbotdemo.services.ChatService;
 import com.example.tgbotdemo.services.GuildService;
@@ -40,6 +41,8 @@ public class TgbotdemoApplication {
 	private OrderService orderService;
 	@Autowired
 	private CellService cellService;
+	@Autowired
+	private AdminService adminService;
 
 	@Autowired
 	private TelegramBot bot;
@@ -70,23 +73,6 @@ public class TgbotdemoApplication {
 			// }
 			// }
 
-			// ClassPathResource resource = new ClassPathResource("/jsons/map.json");
-			// ObjectMapper objectMapper = new ObjectMapper();
-			// List<Map<String, Object>> map = objectMapper.readValue(resource.getFile(),
-			// new TypeReference<>() {
-			// });
-
-			// List<Cell> cells = new ArrayList<>();
-			// for (Map<String, Object> m : map) {
-			// int number = (int) m.get("number");
-			// int level = (int) m.get("level");
-			// List<Object> i = (List<Object>) m.get("neighbours");
-			// int[] neighbours = i.stream().mapToInt(x -> (int) x).toArray();
-			// Cell newCell = new Cell(number, level, null, neighbours);
-			// cellService.save(newCell);
-			// cells.add(newCell);
-			// }
-
 			// for (User u : users) {
 			// orderService
 			// .save(new Order(u, cells.get(new Random().nextInt(0, 12)), new
@@ -97,6 +83,25 @@ public class TgbotdemoApplication {
 			// userService.save(new User("mymarichko", 10000, toSave));
 			// userService.save(new User("ya_qlgn", 523, toSave));
 			// userService.save(new User("Ereteik", 1000, guilds.getLast()));
+
+			adminService.save(new Admin("ya_qlgn"));
+
+			ClassPathResource resource = new ClassPathResource("/jsons/map.json");
+			ObjectMapper objectMapper = new ObjectMapper();
+			List<Map<String, Object>> map = objectMapper.readValue(resource.getFile(),
+					new TypeReference<>() {
+					});
+
+			List<Cell> cells = new ArrayList<>();
+			for (Map<String, Object> m : map) {
+				int number = (int) m.get("number");
+				int level = (int) m.get("level");
+				List<Object> i = (List<Object>) m.get("neighbours");
+				int[] neighbours = i.stream().mapToInt(x -> (int) x).toArray();
+				Cell newCell = new Cell(number, level, null, neighbours);
+				cellService.save(newCell);
+				cells.add(newCell);
+			}
 
 			bot.setUpdatesListener(updates -> {
 				for (Update update : updates) {

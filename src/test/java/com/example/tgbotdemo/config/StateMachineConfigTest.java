@@ -9,7 +9,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 
-import com.example.tgbotdemo.domain.statemachine.ChatEvents;
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
 
 import lombok.extern.slf4j.Slf4j;
