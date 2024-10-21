@@ -29,17 +29,20 @@ import org.springframework.stereotype.Component;
 import com.example.tgbotdemo.domain.Guild;
 import com.example.tgbotdemo.domain.User;
 import com.example.tgbotdemo.services.GuildService;
+import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class ExcelUtil {
+public class ResourceUtil {
     @Autowired
     private UserService userService;
     @Autowired
     private GuildService guildService;
+    @Autowired
+    private OrderService orderService;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -79,7 +82,8 @@ public class ExcelUtil {
                     String.format("https://api.telegram.org/file/bot%s/%s", environment.getProperty("TOKEN"), filePath))
                     .toURL();
             ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-            FileOutputStream fileOutputStream = new FileOutputStream("add.xlsx");
+            FileOutputStream fileOutputStream = new FileOutputStream(
+                    resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx");
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
@@ -88,7 +92,8 @@ public class ExcelUtil {
             return;
         }
 
-        try (FileInputStream fileStream = new FileInputStream(new File("add.xlsx"))) {
+        try (FileInputStream fileStream = new FileInputStream(
+                new File(resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx"))) {
             Workbook workbook = new XSSFWorkbook(fileStream);
             Sheet sheet = workbook.getSheetAt(0);
             Map<String, Integer> data = new HashMap<>();
@@ -122,7 +127,6 @@ public class ExcelUtil {
     public File getUsersTemplate() {
         Resource resource = resourceLoader.getResource("classpath:templates/users.xlsx");
         try {
-            File file = resource.getFile();
             return resource.getFile();
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,37 +140,42 @@ public class ExcelUtil {
                     String.format("https://api.telegram.org/file/bot%s/%s", environment.getProperty("TOKEN"), filePath))
                     .toURL();
             ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-            FileOutputStream fileOutputStream = new FileOutputStream("new_users.xlsx");
+            FileOutputStream fileOutputStream = new FileOutputStream(
+                    resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx");
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
             log.info(String.format("File downloaded"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+            orderService.deleteAll();
+            userService.deleteAll();
+            guildService.deleteAll();
 
-        try (FileInputStream fileStream = new FileInputStream(new File("new_users.xlsx"))) {
+            FileInputStream fileStream = new FileInputStream(
+                    new File(resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx"));
+
             Workbook workbook = new XSSFWorkbook(fileStream);
-            int sheets = workbook.getNumberOfSheets();
             for (Sheet sheet : workbook) {
                 String guildName = sheet.getSheetName();
                 Guild guild = new Guild(guildName);
                 guildService.save(guild);
                 for (Row row : sheet) {
-                    String username = row.getCell(0).getStringCellValue();
-                    User user = userService.getByUsername(username);
-                    Optional<Cell> moneyCell = Optional.ofNullable(row.getCell(1));
-                    int money = 0;
-                    if (moneyCell.isPresent())
-                        money = (int) moneyCell.get().getNumericCellValue();
+                    try {
+                        String username = row.getCell(0).getStringCellValue();
+                        User user = userService.getByUsername(username);
+                        Optional<Cell> moneyCell = Optional.ofNullable(row.getCell(1));
+                        int money = 0;
+                        if (moneyCell.isPresent())
+                            money = (int) moneyCell.get().getNumericCellValue();
 
-                    if (user == null)
-                        userService.save(new User(username, money, guild));
-                    else {
-                        user.setMoney(money);
-                        user.setGuild(guild);
-                        userService.save(user);
+                        if (user == null)
+                            userService.save(new User(username, money, guild));
+                        else {
+                            user.setMoney(money);
+                            user.setGuild(guild);
+                            userService.save(user);
+                        }
+                    } catch (Exception e) {
+                        continue;
                     }
                 }
             }
@@ -174,8 +183,21 @@ public class ExcelUtil {
             workbook.close();
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
+    }
+
+    public void loadNewMap(String filePath) throws Exception {
+
+        URL url = new URI(
+                String.format("https://api.telegram.org/file/bot%s/%s", environment.getProperty("TOKEN"), filePath))
+                .toURL();
+        ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
+        FileOutputStream fileOutputStream = new FileOutputStream(
+                resourceLoader.getResource("classpath:images/").getFile() + "/map.jpg");
+        FileChannel fileChannel = fileOutputStream.getChannel();
+        fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
+        fileOutputStream.close();
+        log.info(String.format("New map downloaded"));
 
     }
 }

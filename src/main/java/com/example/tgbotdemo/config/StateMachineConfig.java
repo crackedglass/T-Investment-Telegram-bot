@@ -3,8 +3,6 @@ package com.example.tgbotdemo.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -57,7 +55,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withExternal()
                 .source(ChatStates.MAIN).target(ChatStates.ORDER_ASKING_CELL).event("инвестировать в территорию")
-                .action(mainActionsConfig.orderFirstStep())
+                .action(mainActionsConfig.orderFirstStep()).guard(guardsConfig.isBlocked())
                 .and()
                 .withInternal()
                 .source(ChatStates.MAIN).event("мои инвестиции в территории")
@@ -66,6 +64,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .withExternal()
                 .source(ChatStates.MAIN).target(ChatStates.INFO_ASKING_CELL)
                 .event("сколько гильдии инвестировали в территории").action(mainActionsConfig.getGuildOrders())
+                .guard(guardsConfig.isBlocked())
                 .and()
                 .withExternal()
                 .source(ChatStates.MAIN).target(ChatStates.ADMIN).event("/admin").guard(guardsConfig.adminGuard())
@@ -77,7 +76,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withExternal()
                 .source(ChatStates.ORDER_ASKING_CELL).target(ChatStates.ORDER_ASKING_AMOUNT)
-                .event("NEXT").action(mainActionsConfig.orderSecondStep())
+                .event("NEXT").action(mainActionsConfig.orderSecondStep()).guard(guardsConfig.isBlocked())
                 // From ORDER_ASKING_AMOUNT state
                 .and()
                 .withExternal()
@@ -89,7 +88,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withExternal()
                 .source(ChatStates.ASKING_ACTION).target(ChatStates.ASKING_TO_DELETE)
-                .event("убрать вложение")
+                .event("убрать вложение").guard(guardsConfig.isBlocked())
                 // From ASKING_TO_DELETE state
                 .and()
                 .withExternal()
@@ -118,7 +117,18 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .action(adminActionsConfig.loadUsers())
                 .and()
                 .withInternal()
-                .source(ChatStates.ADMIN).event("остановить вложения").action(adminActionsConfig.stopTrades()); // TODO
+                .source(ChatStates.ADMIN).event("остановить вложения").action(adminActionsConfig.stopTrades())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("возобновить вложения").action(adminActionsConfig.restartTrades())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("закрепить клетки за гильдиями")
+                .action(adminActionsConfig.fixWinners())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("загрузить карту")
+                .action(adminActionsConfig.loadNewMap());
     }
 
     @Override

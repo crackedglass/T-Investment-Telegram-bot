@@ -1,8 +1,6 @@
 package com.example.tgbotdemo.services;
 
 import java.util.HashMap;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.pengrad.telegrambot.model.Chat;

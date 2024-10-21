@@ -16,6 +16,10 @@ public class CellService {
     @Autowired
     private GuildRepository guildRepository;
 
+    public List<Cell> getAllCells() {
+        return cellRepository.findAll();
+    }
+
     public Cell getByNumber(int number) {
         return cellRepository.findByNumber(number);
     }
@@ -35,7 +39,7 @@ public class CellService {
         return available.stream().toList();
     }
 
-    public Map<String, Integer> getSumOfOrdersByNumber(int number) {
+    public Map<String, Integer> getSumOfOrdersOfGuildByNumber(int number) {
         Map<String, Integer> toReturn = new HashMap<>();
 
         Cell cell = cellRepository.findByNumber(number);

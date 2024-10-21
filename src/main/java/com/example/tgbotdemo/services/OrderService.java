@@ -58,6 +58,10 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    public void deleteAll() {
+        orderRepository.deleteAll();
+    }
+
     public void save(Order order) {
         orderRepository.save(order);
     }

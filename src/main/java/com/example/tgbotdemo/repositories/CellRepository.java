@@ -19,4 +19,6 @@ public interface CellRepository extends JpaRepository<Cell, Long> {
 
     public List<Cell> findByOwnerGuild(Guild ownerGuild);
 
+    @Query("SELECT c FROM Cell c LEFT JOIN FETCH c.ownerGuild")
+    public List<Cell> findAll();
 }

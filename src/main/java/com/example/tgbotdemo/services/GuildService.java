@@ -15,6 +15,10 @@ public class GuildService {
         return guildRepository.findByName(name);
     }
 
+    public void deleteAll() {
+        guildRepository.deleteAll();
+    }
+
     public void save(Guild guild) {
         guildRepository.save(guild);
     }

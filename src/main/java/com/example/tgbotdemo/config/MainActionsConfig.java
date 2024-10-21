@@ -142,6 +142,7 @@ public class MainActionsConfig {
         };
     }
 
+    @SuppressWarnings("deprecation")
     @Bean
     public Action<ChatStates, String> orderFirstStep() {
         return context -> {
@@ -160,25 +161,40 @@ public class MainActionsConfig {
             listenerService.pushListenerToChat(message.chat(), m -> {
                 try {
                     int cellNumber = Integer.parseInt(m.text());
+                    if (cellNumber < 1 || cellNumber > 19) {
+                        bot.execute(new SendMessage(message.chat().id(),
+                                "Вы добрались до края света, дальше живут драконы.\n" + //
+                                        "\n" + //
+                                        "Напишите правильный номер территории и возвращайтесь.")
+                                .replyMarkup(menuKeyboard));
+                        return;
+                    }
+
                     List<Integer> available = cellService
                             .getAvailableCellsNumbersByUsername(m.chat().username());
-                    if (available.indexOf(cellNumber) != -1) {
+                    if (available.contains(cellNumber)) {
                         context.getExtendedState().getVariables().put("cell", cellNumber);
                         sm.sendEvent("NEXT");
                         return;
                     } else {
+                        bot.execute(new SendMessage(m.chat().id(),
+                                "Вы не можете вложиться в эту территорию.\n\nУбедитесь, что ввели правильный номер и ваша гильдия контролирует соседние участки")
+                                .replyMarkup(menuKeyboard));
                         sm.sendEvent("BACK_TO_MENU");
                     }
                 } catch (NumberFormatException e) {
                     sm.sendEvent("BACK_TO_MENU");
+                    bot.execute(new SendMessage(message.chat().id(),
+                            "Вы добрались до края света, дальше живут драконы.\n" + //
+                                    "\n" + //
+                                    "Напишите правильный номер территории и возвращайтесь.")
+                            .replyMarkup(menuKeyboard));
                 }
-                bot.execute(new SendMessage(m.chat().id(),
-                        "Вы не можете вложиться в эту территорию.\n\nУбедитесь, что ввели правильный номер и ваша гильдия контролирует соседние участки")
-                        .replyMarkup(menuKeyboard));
             });
         };
     }
 
+    @SuppressWarnings("deprecation")
     @Bean
     public Action<ChatStates, String> orderSecondStep() {
         return context -> {
@@ -218,6 +234,7 @@ public class MainActionsConfig {
         };
     }
 
+    @SuppressWarnings("deprecation")
     @Bean
     public Action<ChatStates, String> getUserOrders() {
         return context -> {
@@ -245,6 +262,7 @@ public class MainActionsConfig {
         };
     }
 
+    @SuppressWarnings("deprecation")
     @Bean
     public Action<ChatStates, String> getGuildOrders() {
         return context -> {
@@ -275,11 +293,14 @@ public class MainActionsConfig {
                         String ownerGuildName = cellService
                                 .getOwnerGuildNameByNumber(cellNumber);
 
-                        if (ownerGuildName != null)
+                        if (ownerGuildName != null) {
                             bot.execute(new SendMessage(message.chat().id(), "Клеткой владеет гильдия: "
                                     + ownerGuildName).replyMarkup(menuKeyboard));
+                            sm.sendEvent("BACK_TO_MENU");
+                            return;
+                        }
 
-                        var orders = cellService.getSumOfOrdersByNumber(cellNumber);
+                        var orders = cellService.getSumOfOrdersOfGuildByNumber(cellNumber);
 
                         if (orders.size() == 0) {
                             bot.execute(new SendMessage(message.chat().id(),

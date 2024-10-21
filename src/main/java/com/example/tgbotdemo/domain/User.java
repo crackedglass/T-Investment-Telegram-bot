@@ -1,7 +1,5 @@
 package com.example.tgbotdemo.domain;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
 
 import jakarta.persistence.Column;

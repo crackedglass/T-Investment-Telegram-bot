@@ -1,29 +1,22 @@
 package com.example.tgbotdemo.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
-import com.example.tgbotdemo.domain.Admin;
 import com.example.tgbotdemo.domain.User;
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -44,13 +37,12 @@ public class ChatService {
     private AdminService adminService;
 
     private Map<String, StateMachine<ChatStates, String>> stateMachines;
-    private boolean ready;
 
     public ChatService() {
         stateMachines = new HashMap<>();
-        ready = true;
     }
 
+    @SuppressWarnings("deprecation")
     public void handleMessage(Message message) {
         log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id());
 
@@ -78,7 +70,8 @@ public class ChatService {
 
         sm.getExtendedState().getVariables().put("msg", message);
 
-        if (message.document() != null && listenerService.chatHaveListener(message.chat())) {
+        if ((message.document() != null || message.photo() != null)
+                && listenerService.chatHaveListener(message.chat())) {
             MessageListener listener = listenerService.popListenerFromChat(message.chat());
             listener.process(message);
             return;
@@ -89,12 +82,6 @@ public class ChatService {
         if (message.text().equals("/start")) {
             sm.getStateMachineAccessor().doWithAllRegions(access -> access
                     .resetStateMachine(new DefaultStateMachineContext<>(ChatStates.MAIN, "/start", null, null)));
-        }
-
-        if (ready == false) {
-            listenerService.dropAllListeners();
-            bot.execute(new SendMessage(message.chat().id(),
-                    "Счетовод рисует новую карту, скоро снова можно будет инвестировать в клетки!"));
         }
 
         if (listenerService.chatHaveListener(message.chat())) {
@@ -111,11 +98,4 @@ public class ChatService {
         log.info(sm.getState().toString());
     }
 
-    public void setNotReady() {
-        ready = false;
-    }
-
-    public void setReady() {
-        ready = true;
-    }
 }
