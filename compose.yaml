@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:latest
+    mem_limit: 500m
+    environment:
+      POSTGRES_DB: "botDB"
+      POSTGRES_USER: "botUser"
+      POSTGRES_PASSWORD: "botUser"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    ports:
+      - "5433:5432"
+
+volumes:
+  db-data:
+    name: "ttgbot"
