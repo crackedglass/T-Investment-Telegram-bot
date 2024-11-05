@@ -57,7 +57,7 @@ public class TgbotdemoApplication {
 	@Bean
 	ApplicationRunner runner(Environment environment) {
 		return args -> {
-			// Faker faker = new Faker();
+			Faker faker = new Faker();
 
 			List<Cell> check_cells = cellService.getAllCells();
 			if (check_cells.size() == 0) {
@@ -73,45 +73,45 @@ public class TgbotdemoApplication {
 					for (Map<String, Object> m : map) {
 						int number = (int) m.get("number");
 						int level = (int) m.get("level");
-						List<Object> i = (List<Object>) m.get("neighbours");
-						int[] neighbours = i.stream().mapToInt(x -> (int) x).toArray();
+						List<Object> item = (List<Object>) m.get("neighbours");
+						int[] neighbours = item.stream().mapToInt(x -> (int) x).toArray();
 						Cell newCell = new Cell(number, level, null, neighbours);
 						cellService.save(newCell);
 						cells.add(newCell);
 					}
+					List<Guild> guilds = new ArrayList<>();
+					for (int i = 1; i <= 3; i++) {
+						guilds.add(new Guild("Guild " + i));
+						guildService.save(guilds.getLast());
+					}
+
+					List<User> users = new ArrayList<>();
+
+					for (Guild g : guilds) {
+						for (int i = 0; i <= 50; i++) {
+							User fakeUser = new User(faker.name().username(),
+									faker.number().numberBetween(100, 1000), g);
+							userService.save(fakeUser);
+							users.add(fakeUser);
+						}
+					}
+
+					for (User u : users) {
+						orderService
+								.save(new Order(u, cells.get(new Random().nextInt(0, 12)),
+										new Random().nextInt(10, 100)));
+					}
+
+					Guild toSave = guilds.getFirst();
+					userService.save(new User("mymarichko", 10000, toSave));
+					userService.save(new User("ya_qlgn", 523, toSave));
+					userService.save(new User("Ereteik", 1000, guilds.getLast()));
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 			}
-
-			// List<Guild> guilds = new ArrayList<>();
-			// for (int i = 1; i <= 3; i++) {
-			// guilds.add(new Guild("Guild " + i));
-			// guildService.save(guilds.getLast());
-			// }
-
-			// List<User> users = new ArrayList<>();
-
-			// for (Guild g : guilds) {
-			// for (int i = 0; i <= 50; i++) {
-			// User fakeUser = new User(faker.name().username(),
-			// faker.number().numberBetween(100, 1000), g);
-			// userService.save(fakeUser);
-			// users.add(fakeUser);
-			// }
-			// }
-
-			// for (User u : users) {
-			// orderService
-			// .save(new Order(u, cells.get(new Random().nextInt(0, 12)), new
-			// Random().nextInt(10, 100)));
-			// }
-
-			// Guild toSave = guilds.getFirst();
-			// userService.save(new User("mymarichko", 10000, toSave));
-			// userService.save(new User("ya_qlgn", 523, toSave));
-			// userService.save(new User("Ereteik", 1000, guilds.getLast()));
 
 			adminService.save(new Admin("ya_qlgn"));
 			if (userService.getByUsername("ya_qlgn") == null)

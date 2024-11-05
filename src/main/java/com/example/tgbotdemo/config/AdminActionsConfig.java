@@ -64,6 +64,8 @@ public class AdminActionsConfig {
             { new KeyboardButton("Загрузить таблицу с пользователями") },
             { new KeyboardButton("Загрузить карту") }, // TODO
             { new KeyboardButton("Закрепить клетки за гильдиями") },
+            { new KeyboardButton("Очистить поле") },
+            { new KeyboardButton("Показать поле") },
             { new KeyboardButton("Выйти в главное меню") }
     });
 
@@ -73,6 +75,8 @@ public class AdminActionsConfig {
             { new KeyboardButton("Загрузить таблицу с пользователями") },
             { new KeyboardButton("Загрузить карту") },
             { new KeyboardButton("Закрепить клетки за гильдиями") },
+            { new KeyboardButton("Очистить поле") },
+            { new KeyboardButton("Показать поле") },
             { new KeyboardButton("Выйти в главное меню") }
     });
 
@@ -248,6 +252,38 @@ public class AdminActionsConfig {
                 }
             });
 
+        };
+    }
+
+    @Bean
+    public Action<ChatStates, String> clearCells() {
+        return context -> {
+            Message message = (Message) context.getExtendedState().getVariables().get("msg");
+
+            cellService.removeAllOwners();
+
+            bot.execute(new SendMessage(message.chat().id(), "Теперь все клетки пустые"));
+            orderService.deleteAll();
+        };
+    }
+
+    @Bean
+    public Action<ChatStates, String> showMap() {
+        return context -> {
+            Message message = (Message) context.getExtendedState().getVariables().get("msg");
+            List<Cell> cells = cellService.getAllCells();
+            cells.sort((a, b) -> (a.getNumber() > b.getNumber()) ? 1 : -1);
+            StringBuilder sb = new StringBuilder();
+            for (Cell cell : cells) {
+                String guildName = "";
+                Guild ownerGuild = cell.getOwnerGuild();
+                if (Optional.ofNullable(ownerGuild).isPresent()) {
+                    guildName = ownerGuild.getName();
+                }
+                sb.append(String.format("Клетка №%d - %s\n", cell.getNumber(), guildName));
+            }
+
+            bot.execute(new SendMessage(message.chat().id(), sb.toString()));
         };
     }
 

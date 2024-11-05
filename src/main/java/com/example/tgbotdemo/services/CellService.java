@@ -61,6 +61,7 @@ public class CellService {
     public String getOwnerGuildNameByNumber(int number) {
         Cell cell = cellRepository.findByNumber(number);
         Guild ownerGuild = cell.getOwnerGuild();
+
         if (ownerGuild == null)
             return null;
         else
@@ -69,6 +70,13 @@ public class CellService {
 
     public void save(Cell cell) {
         cellRepository.save(cell);
+    }
+
+    public void removeAllOwners() {
+        List<Cell> cells = cellRepository.findAll();
+        for (Cell cell : cells)
+            cell.setOwnerGuild(null);
+        cellRepository.saveAll(cells);
     }
 
     public void deleteAll() {

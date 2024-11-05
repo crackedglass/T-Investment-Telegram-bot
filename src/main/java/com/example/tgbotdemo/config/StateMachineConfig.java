@@ -128,7 +128,15 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withInternal()
                 .source(ChatStates.ADMIN).event("загрузить карту")
-                .action(adminActionsConfig.loadNewMap());
+                .action(adminActionsConfig.loadNewMap())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("очистить поле")
+                .action(adminActionsConfig.clearCells())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("показать поле")
+                .action(adminActionsConfig.showMap());
     }
 
     @Override
