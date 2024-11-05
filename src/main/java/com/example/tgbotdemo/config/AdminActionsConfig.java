@@ -240,6 +240,7 @@ public class AdminActionsConfig {
 
                 try {
                     resourceUtil.loadNewMap(filePath);
+                    bot.execute(new SendMessage(m.chat().id(), "Карта загружена"));
                 } catch (Exception e) {
                     bot.execute(new SendMessage(m.chat().id(), "Не удалось загрузить новую карту")
                             .replyMarkup(adminKeyboard));

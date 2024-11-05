@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -64,7 +65,7 @@ public class ResourceUtil {
         }
 
         try {
-            File file = new ClassPathResource("temp/temp.xlsx").getFile();
+            File file = new File("resources/temp/temp.xlsx");
             FileOutputStream outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
             workbook.close();
@@ -83,7 +84,7 @@ public class ResourceUtil {
                     .toURL();
             ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
             FileOutputStream fileOutputStream = new FileOutputStream(
-                    resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx");
+                    new File("resources/temp/temp.xlsx"));
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
@@ -92,8 +93,7 @@ public class ResourceUtil {
             return;
         }
 
-        try (FileInputStream fileStream = new FileInputStream(
-                new File(resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx"))) {
+        try (FileInputStream fileStream = new FileInputStream(new File("resources/temp/temp.xlsx"))) {
             Workbook workbook = new XSSFWorkbook(fileStream);
             Sheet sheet = workbook.getSheetAt(0);
             Map<String, Integer> data = new HashMap<>();
@@ -125,9 +125,9 @@ public class ResourceUtil {
     }
 
     public File getUsersTemplate() {
-        Resource resource = resourceLoader.getResource("classpath:templates/users.xlsx");
+        File file = new File("resources/templates/users.xlsx");
         try {
-            return resource.getFile();
+            return file;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,7 +141,7 @@ public class ResourceUtil {
                     .toURL();
             ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
             FileOutputStream fileOutputStream = new FileOutputStream(
-                    resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx");
+                    new File("resources/temp/temp.xlsx"));
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
@@ -151,7 +151,7 @@ public class ResourceUtil {
             guildService.deleteAll();
 
             FileInputStream fileStream = new FileInputStream(
-                    new File(resourceLoader.getResource("classpath:temp/").getFile() + "/temp.xlsx"));
+                    new File("resources/temp/temp.xlsx"));
 
             Workbook workbook = new XSSFWorkbook(fileStream);
             for (Sheet sheet : workbook) {
@@ -161,6 +161,8 @@ public class ResourceUtil {
                 for (Row row : sheet) {
                     try {
                         String username = row.getCell(0).getStringCellValue();
+                        if (username.matches("^\\\\s+$") || username == null || username.equals(""))
+                            continue;
                         User user = userService.getByUsername(username);
                         Optional<Cell> moneyCell = Optional.ofNullable(row.getCell(1));
                         int money = 0;
@@ -193,7 +195,7 @@ public class ResourceUtil {
                 .toURL();
         ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
         FileOutputStream fileOutputStream = new FileOutputStream(
-                resourceLoader.getResource("classpath:images/").getFile() + "/map.jpg");
+                new File("resources/images/map.jpg"));
         FileChannel fileChannel = fileOutputStream.getChannel();
         fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         fileOutputStream.close();

@@ -27,6 +27,7 @@ import com.pengrad.telegrambot.model.Update;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.*;
 
@@ -58,22 +59,30 @@ public class TgbotdemoApplication {
 		return args -> {
 			// Faker faker = new Faker();
 
-			ClassPathResource resource = new ClassPathResource("/jsons/map.json");
-			ObjectMapper objectMapper = new ObjectMapper();
-			InputStream inputStream = resource.getInputStream();
-			List<Map<String, Object>> map = objectMapper.readValue(inputStream,
-					new TypeReference<>() {
-					});
+			List<Cell> check_cells = cellService.getAllCells();
+			if (check_cells.size() == 0) {
+				try {
+					File file = new File("resources/jsons/map.json");
+					ObjectMapper objectMapper = new ObjectMapper();
 
-			List<Cell> cells = new ArrayList<>();
-			for (Map<String, Object> m : map) {
-				int number = (int) m.get("number");
-				int level = (int) m.get("level");
-				List<Object> i = (List<Object>) m.get("neighbours");
-				int[] neighbours = i.stream().mapToInt(x -> (int) x).toArray();
-				Cell newCell = new Cell(number, level, null, neighbours);
-				cellService.save(newCell);
-				cells.add(newCell);
+					List<Map<String, Object>> map = objectMapper.readValue(file,
+							new TypeReference<>() {
+							});
+
+					List<Cell> cells = new ArrayList<>();
+					for (Map<String, Object> m : map) {
+						int number = (int) m.get("number");
+						int level = (int) m.get("level");
+						List<Object> i = (List<Object>) m.get("neighbours");
+						int[] neighbours = i.stream().mapToInt(x -> (int) x).toArray();
+						Cell newCell = new Cell(number, level, null, neighbours);
+						cellService.save(newCell);
+						cells.add(newCell);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
 
 			// List<Guild> guilds = new ArrayList<>();
@@ -105,7 +114,12 @@ public class TgbotdemoApplication {
 			// userService.save(new User("Ereteik", 1000, guilds.getLast()));
 
 			adminService.save(new Admin("ya_qlgn"));
+			if (userService.getByUsername("ya_qlgn") == null)
+				userService.save(new User("ya_qlgn", 0, null));
 			adminService.save(new Admin("Ereteik"));
+			if (userService.getByUsername("Ereteik") == null)
+				userService.save(new User("Ereteik", 0, null));
+
 			// userService.save(new User("ya_qlgn", 0, null));
 
 			bot.setUpdatesListener(updates -> {

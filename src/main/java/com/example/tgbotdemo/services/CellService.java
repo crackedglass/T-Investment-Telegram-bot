@@ -71,4 +71,8 @@ public class CellService {
         cellRepository.save(cell);
     }
 
+    public void deleteAll() {
+        cellRepository.deleteAll();
+    }
+
 }

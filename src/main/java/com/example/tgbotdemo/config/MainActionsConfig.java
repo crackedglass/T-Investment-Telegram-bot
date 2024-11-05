@@ -1,5 +1,6 @@
 package com.example.tgbotdemo.config;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import com.example.tgbotdemo.services.ListenerService;
 import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.Keyboard;
 import com.pengrad.telegrambot.model.request.KeyboardButton;
@@ -102,13 +104,14 @@ public class MainActionsConfig {
     public Action<ChatStates, String> getGuildMoney() {
         return context -> {
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
-
             Long chatId = message.chat().id();
             String username = message.chat().username();
             User user = userService.getByUsername(username);
+            log.info(user.toString());
             if (Optional.ofNullable(user).isPresent()) {
 
                 Guild guild = guildService.getByName(user.getGuild().getName());
+
                 List<String> toDisplay = guild
                         .getUsers()
                         .stream()
@@ -122,7 +125,7 @@ public class MainActionsConfig {
                 String text = "Твоя гильдия заработала " + sum + " серебра\nТоп 10 твоих соратников:\n"
                         + String.join("\n", toDisplay);
 
-                bot.execute(new SendMessage(chatId, text).parseMode(ParseMode.Markdown));
+                bot.execute(new SendMessage(chatId, text));
             }
         };
     }
@@ -146,14 +149,14 @@ public class MainActionsConfig {
     @Bean
     public Action<ChatStates, String> orderFirstStep() {
         return context -> {
-            ClassPathResource resource = new ClassPathResource("images/map.jpg");
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
             StateMachine<ChatStates, String> sm = context.getStateMachine();
             try {
-                bot.execute(new SendPhoto(message.chat().id(), resource.getFile())
+                java.io.File file = new java.io.File("resources/images/map.jpg");
+                bot.execute(new SendPhoto(message.chat().id(), file)
                         .caption("Напишите номер территории, в которую хотите вложиться")
                         .replyMarkup(new ReplyKeyboardRemove()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("Hex map not found", e);
                 sm.sendEvent("BACK_TO_MENU");
                 return;
@@ -167,6 +170,7 @@ public class MainActionsConfig {
                                         "\n" + //
                                         "Напишите правильный номер территории и возвращайтесь.")
                                 .replyMarkup(menuKeyboard));
+                        sm.sendEvent("BACK_TO_MENU");
                         return;
                     }
 
@@ -266,15 +270,16 @@ public class MainActionsConfig {
     @Bean
     public Action<ChatStates, String> getGuildOrders() {
         return context -> {
-            ClassPathResource resource = new ClassPathResource("images/map.jpg");
+
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
             StateMachine<ChatStates, String> sm = context.getStateMachine();
             try {
-                bot.execute(new SendPhoto(message.chat().id(), resource.getFile())
+                java.io.File file = new java.io.File("resources/images/map.jpg");
+                bot.execute(new SendPhoto(message.chat().id(), file)
                         .caption(
                                 "Напишите номер территории, чтобы узнать, сколько ваша и другие гильдии вложили в нее серебра")
                         .replyMarkup(new ReplyKeyboardRemove()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("Hex map not found", e);
                 sm.sendEvent("BACK_TO_MENU");
                 return;
