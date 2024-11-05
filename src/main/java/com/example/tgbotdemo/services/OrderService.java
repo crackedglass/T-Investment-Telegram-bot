@@ -50,12 +50,18 @@ public class OrderService {
     }
 
     @Transactional
-    public void delete(Order order) {
-        User user = userRepository.findByUsername(order.getUser().getUsername());
-        int money = user.getMoney();
-        user.setMoney(money + order.getAmount());
-        userRepository.save(user);
-        orderRepository.delete(order);
+    public void revertAll(List<Order> orders) {
+        for (Order order : orders) {
+            User user = userRepository.findByUsername(order.getUser().getUsername());
+            int money = user.getMoney();
+            user.setMoney(money + order.getAmount());
+            userRepository.save(user);
+            orderRepository.delete(order);
+        }
+    }
+
+    public List<Order> findAll() {
+        return orderRepository.findAll();
     }
 
     public void deleteAll() {

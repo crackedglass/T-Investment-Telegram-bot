@@ -9,6 +9,7 @@ import org.springframework.statemachine.action.Action;
 
 import com.example.tgbotdemo.domain.Cell;
 import com.example.tgbotdemo.domain.Guild;
+import com.example.tgbotdemo.domain.Order;
 import com.example.tgbotdemo.domain.statemachine.ChatStates;
 import com.example.tgbotdemo.services.BlockService;
 import com.example.tgbotdemo.services.CellService;
@@ -260,10 +261,21 @@ public class AdminActionsConfig {
         return context -> {
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
 
-            cellService.removeAllOwners();
+            bot.execute(new SendMessage(message.chat().id(), "Уверен? (Для подтверждения напишите: \"Да, уверен\")"));
 
-            bot.execute(new SendMessage(message.chat().id(), "Теперь все клетки пустые"));
-            orderService.deleteAll();
+            listenerService.pushListenerToChat(message.chat(), m -> {
+                if (m.text().equals("Да, уверен")) {
+                    List<Order> orders = orderService.findAll();
+                    orderService.revertAll(orders);
+                    cellService.removeAllOwners();
+
+                    bot.execute(new SendMessage(m.chat().id(), "Теперь все клетки пустые"));
+                    orderService.deleteAll();
+                } else {
+                    bot.execute(new SendMessage(m.chat().id(), "Отмэна"));
+                }
+            });
+
         };
     }
 
