@@ -270,7 +270,7 @@ public class AdminActionsConfig {
                     cellService.removeAllOwners();
 
                     bot.execute(new SendMessage(m.chat().id(), "Теперь все клетки пустые"));
-                    orderService.deleteAll();
+
                 } else {
                     bot.execute(new SendMessage(m.chat().id(), "Отмэна"));
                 }

@@ -8,8 +8,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-
 import com.example.tgbotdemo.domain.*;
 import com.example.tgbotdemo.services.AdminService;
 import com.example.tgbotdemo.services.CellService;
@@ -19,7 +17,6 @@ import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
@@ -28,7 +25,6 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.*;
 
 @Slf4j

@@ -17,6 +17,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public User findByUsernameWithGuild(String username) {
+        return userRepository.findByUsernameWithGuild(username);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

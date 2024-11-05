@@ -56,8 +56,8 @@ public class OrderService {
             int money = user.getMoney();
             user.setMoney(money + order.getAmount());
             userRepository.save(user);
-            orderRepository.delete(order);
         }
+        orderRepository.deleteAll();
     }
 
     public List<Order> findAll() {

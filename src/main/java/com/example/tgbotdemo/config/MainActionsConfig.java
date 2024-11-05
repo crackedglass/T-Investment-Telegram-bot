@@ -176,7 +176,17 @@ public class MainActionsConfig {
 
                     List<Integer> available = cellService
                             .getAvailableCellsNumbersByUsername(m.chat().username());
-                    if (available.contains(cellNumber)) {
+                    List<Integer> owned = guildService
+                            .getByName(userService.findByUsernameWithGuild(m.chat().username()).getGuild().getName())
+                            .getCells()
+                            .stream().mapToInt(i -> i.getNumber()).boxed().toList();
+
+                    if (owned.contains(cellNumber)) {
+                        bot.execute(new SendMessage(m.chat().id(),
+                                "Это ваша территория")
+                                .replyMarkup(menuKeyboard));
+                        sm.sendEvent("BACK_TO_MENU");
+                    } else if (available.contains(cellNumber)) {
                         context.getExtendedState().getVariables().put("cell", cellNumber);
                         sm.sendEvent("NEXT");
                         return;
