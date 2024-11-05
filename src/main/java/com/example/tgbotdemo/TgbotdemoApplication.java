@@ -26,6 +26,8 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.InputStream;
 import java.util.*;
 
 @Slf4j
@@ -54,11 +56,12 @@ public class TgbotdemoApplication {
 	@Bean
 	ApplicationRunner runner(Environment environment) {
 		return args -> {
-			Faker faker = new Faker();
+			// Faker faker = new Faker();
 
 			ClassPathResource resource = new ClassPathResource("/jsons/map.json");
 			ObjectMapper objectMapper = new ObjectMapper();
-			List<Map<String, Object>> map = objectMapper.readValue(resource.getFile(),
+			InputStream inputStream = resource.getInputStream();
+			List<Map<String, Object>> map = objectMapper.readValue(inputStream,
 					new TypeReference<>() {
 					});
 
@@ -73,32 +76,33 @@ public class TgbotdemoApplication {
 				cells.add(newCell);
 			}
 
-			List<Guild> guilds = new ArrayList<>();
-			for (int i = 1; i <= 3; i++) {
-				guilds.add(new Guild("Guild " + i));
-				guildService.save(guilds.getLast());
-			}
+			// List<Guild> guilds = new ArrayList<>();
+			// for (int i = 1; i <= 3; i++) {
+			// guilds.add(new Guild("Guild " + i));
+			// guildService.save(guilds.getLast());
+			// }
 
-			List<User> users = new ArrayList<>();
+			// List<User> users = new ArrayList<>();
 
-			for (Guild g : guilds) {
-				for (int i = 0; i <= 50; i++) {
-					User fakeUser = new User(faker.name().username(),
-							faker.number().numberBetween(100, 1000), g);
-					userService.save(fakeUser);
-					users.add(fakeUser);
-				}
-			}
+			// for (Guild g : guilds) {
+			// for (int i = 0; i <= 50; i++) {
+			// User fakeUser = new User(faker.name().username(),
+			// faker.number().numberBetween(100, 1000), g);
+			// userService.save(fakeUser);
+			// users.add(fakeUser);
+			// }
+			// }
 
-			for (User u : users) {
-				orderService
-						.save(new Order(u, cells.get(new Random().nextInt(0, 12)), new Random().nextInt(10, 100)));
-			}
+			// for (User u : users) {
+			// orderService
+			// .save(new Order(u, cells.get(new Random().nextInt(0, 12)), new
+			// Random().nextInt(10, 100)));
+			// }
 
-			Guild toSave = guilds.getFirst();
-			userService.save(new User("mymarichko", 10000, toSave));
-			userService.save(new User("ya_qlgn", 523, toSave));
-			userService.save(new User("Ereteik", 1000, guilds.getLast()));
+			// Guild toSave = guilds.getFirst();
+			// userService.save(new User("mymarichko", 10000, toSave));
+			// userService.save(new User("ya_qlgn", 523, toSave));
+			// userService.save(new User("Ereteik", 1000, guilds.getLast()));
 
 			adminService.save(new Admin("ya_qlgn"));
 			adminService.save(new Admin("Ereteik"));
