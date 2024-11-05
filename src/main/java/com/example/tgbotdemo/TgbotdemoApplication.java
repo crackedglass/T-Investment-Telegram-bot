@@ -57,7 +57,7 @@ public class TgbotdemoApplication {
 	@Bean
 	ApplicationRunner runner(Environment environment) {
 		return args -> {
-			Faker faker = new Faker();
+			// Faker faker = new Faker();
 
 			List<Cell> check_cells = cellService.getAllCells();
 			if (check_cells.size() == 0) {
@@ -79,33 +79,33 @@ public class TgbotdemoApplication {
 						cellService.save(newCell);
 						cells.add(newCell);
 					}
-					List<Guild> guilds = new ArrayList<>();
-					for (int i = 1; i <= 3; i++) {
-						guilds.add(new Guild("Guild " + i));
-						guildService.save(guilds.getLast());
-					}
+					// List<Guild> guilds = new ArrayList<>();
+					// for (int i = 1; i <= 3; i++) {
+					// guilds.add(new Guild("Guild " + i));
+					// guildService.save(guilds.getLast());
+					// }
 
-					List<User> users = new ArrayList<>();
+					// List<User> users = new ArrayList<>();
 
-					for (Guild g : guilds) {
-						for (int i = 0; i <= 50; i++) {
-							User fakeUser = new User(faker.name().username(),
-									faker.number().numberBetween(100, 1000), g);
-							userService.save(fakeUser);
-							users.add(fakeUser);
-						}
-					}
+					// for (Guild g : guilds) {
+					// for (int i = 0; i <= 50; i++) {
+					// User fakeUser = new User(faker.name().username(),
+					// faker.number().numberBetween(100, 1000), g);
+					// userService.save(fakeUser);
+					// users.add(fakeUser);
+					// }
+					// }
 
-					for (User u : users) {
-						orderService
-								.save(new Order(u, cells.get(new Random().nextInt(0, 12)),
-										new Random().nextInt(10, 100)));
-					}
+					// for (User u : users) {
+					// orderService
+					// .save(new Order(u, cells.get(new Random().nextInt(0, 12)),
+					// new Random().nextInt(10, 100)));
+					// }
 
-					Guild toSave = guilds.getFirst();
-					userService.save(new User("mymarichko", 10000, toSave));
-					userService.save(new User("ya_qlgn", 523, toSave));
-					userService.save(new User("Ereteik", 1000, guilds.getLast()));
+					// Guild toSave = guilds.getFirst();
+					// userService.save(new User("mymarichko", 10000, toSave));
+					// userService.save(new User("ya_qlgn", 523, toSave));
+					// userService.save(new User("Ereteik", 1000, guilds.getLast()));
 
 				} catch (Exception e) {
 					e.printStackTrace();
