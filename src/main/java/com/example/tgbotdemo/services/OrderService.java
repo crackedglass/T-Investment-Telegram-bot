@@ -32,11 +32,11 @@ public class OrderService {
                     cell,
                     amount));
         } else {
-            user.setMoney(user.getMoney() + exist.getAmount() - amount);
+            user.setMoney(user.getMoney() - amount);
             if (amount == 0) {
                 orderRepository.delete(exist);
             } else {
-                exist.setAmount(amount);
+                exist.setAmount(exist.getAmount() + amount);
                 orderRepository.save(exist);
             }
 

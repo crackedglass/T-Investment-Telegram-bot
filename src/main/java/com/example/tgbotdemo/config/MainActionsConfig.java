@@ -183,16 +183,7 @@ public class MainActionsConfig {
                             .getCells()
                             .stream().mapToInt(i -> i.getNumber()).boxed().toList();
 
-                    List<Integer> orders = orderService.getOrdersByUsername(m.chat().username())
-                            .stream().mapToInt(x -> x.getCell().getNumber()).boxed().toList();
-
-                    if (orders.contains(cellNumber)) {
-                        bot.execute(new SendMessage(m.chat().id(),
-                                "Вы уже вложились в эту территорию")
-                                .replyMarkup(menuKeyboard));
-                        sm.sendEvent("BACK_TO_MENU");
-                        return;
-                    } else if (owned.contains(cellNumber)) {
+                    if (owned.contains(cellNumber)) {
                         bot.execute(new SendMessage(m.chat().id(),
                                 "Это ваша территория")
                                 .replyMarkup(menuKeyboard));
