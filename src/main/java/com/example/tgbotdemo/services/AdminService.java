@@ -1,6 +1,7 @@
 package com.example.tgbotdemo.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,11 @@ public class AdminService {
     }
 
     public void save(Admin admin) {
-        admin.setUsername(admin.getUsername().toLowerCase());
+        String username = "";
+        if (Optional.ofNullable(admin.getUsername().toLowerCase()).isPresent()) {
+            username = admin.getUsername().toLowerCase();
+        }
+        admin.setUsername(username);
         adminRepository.save(admin);
     }
 }
