@@ -49,12 +49,15 @@ public class ChatService {
         List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername().toLowerCase())
                 .toList();
 
-        User user = userService.getByUsername(message.chat().username().toLowerCase());
+        String username = message.chat().username();
+        if (username != null)
+            username = username.toLowerCase();
+        User user = userService.getByUsername(username);
 
-        if (user == null && admins.contains(message.chat().username().toLowerCase())) {
-            userService.save(new User(message.chat().username().toLowerCase(), 0, null));
-            user = userService.getByUsername(message.chat().username().toLowerCase());
-        } else if (user == null && !admins.contains(message.chat().username().toLowerCase())) {
+        if (user == null && admins.contains(username)) {
+            userService.save(new User(username, 0, null));
+            user = userService.getByUsername(username);
+        } else if (user == null && !admins.contains(username)) {
             bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире")
                     .replyMarkup(new ReplyKeyboardRemove()));
             return;
@@ -62,12 +65,12 @@ public class ChatService {
 
         if (stateMachines.get(user.getUsername().toLowerCase()) == null) {
             ChatStates state = user.getState();
-            stateMachines.put(message.chat().username().toLowerCase(), factory.getStateMachine());
-            stateMachines.get(message.chat().username().toLowerCase()).getStateMachineAccessor().doWithAllRegions(
+            stateMachines.put(username, factory.getStateMachine());
+            stateMachines.get(username).getStateMachineAccessor().doWithAllRegions(
                     action -> action.resetStateMachine(new DefaultStateMachineContext<>(state, null, null, null)));
         }
 
-        StateMachine<ChatStates, String> sm = stateMachines.get(message.chat().username().toLowerCase());
+        StateMachine<ChatStates, String> sm = stateMachines.get(username);
 
         sm.getExtendedState().getVariables().put("msg", message);
 
@@ -93,7 +96,7 @@ public class ChatService {
                 sm.sendEvent(message.text().toLowerCase());
         }
 
-        User newUser = userService.getByUsername(message.chat().username().toLowerCase());
+        User newUser = userService.getByUsername(username);
         newUser.setState(sm.getState().getId());
         userService.save(newUser);
         log.info(sm.getState().toString());
