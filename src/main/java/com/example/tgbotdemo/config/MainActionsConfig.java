@@ -101,7 +101,7 @@ public class MainActionsConfig {
         return context -> {
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
             Long chatId = message.chat().id();
-            String username = message.chat().username();
+            String username = message.chat().username().toLowerCase();
             User user = userService.getByUsername(username);
             log.info(user.toString());
             if (Optional.ofNullable(user).isPresent()) {

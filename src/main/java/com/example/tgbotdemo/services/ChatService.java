@@ -48,21 +48,21 @@ public class ChatService {
 
         List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername()).toList();
 
-        User user = userService.getByUsername(message.chat().username());
+        User user = userService.getByUsername(message.chat().username().toLowerCase());
 
         if (user == null && admins.contains(message.chat().username())) {
-            userService.save(new User(message.chat().username(), 0, null));
-            user = userService.getByUsername(message.chat().username());
+            userService.save(new User(message.chat().username().toLowerCase(), 0, null));
+            user = userService.getByUsername(message.chat().username().toLowerCase());
         } else if (user == null && !admins.contains(message.chat().username())) {
             bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире")
                     .replyMarkup(new ReplyKeyboardRemove()));
             return;
         }
 
-        if (stateMachines.get(user.getUsername()) == null) {
+        if (stateMachines.get(user.getUsername().toLowerCase()) == null) {
             ChatStates state = user.getState();
-            stateMachines.put(message.chat().username(), factory.getStateMachine());
-            stateMachines.get(message.chat().username()).getStateMachineAccessor().doWithAllRegions(
+            stateMachines.put(message.chat().username().toLowerCase(), factory.getStateMachine());
+            stateMachines.get(message.chat().username().toLowerCase()).getStateMachineAccessor().doWithAllRegions(
                     action -> action.resetStateMachine(new DefaultStateMachineContext<>(state, null, null, null)));
         }
 
