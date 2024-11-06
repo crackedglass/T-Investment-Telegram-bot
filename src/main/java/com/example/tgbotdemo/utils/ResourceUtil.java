@@ -61,7 +61,7 @@ public class ResourceUtil {
         for (int i = 0; i < users.size(); i++) {
             Row row = sheet.createRow(i);
             Cell cell = row.createCell(0);
-            cell.setCellValue(users.get(i).getUsername());
+            cell.setCellValue(users.get(i).getUsername().toLowerCase());
         }
 
         try {
@@ -100,7 +100,7 @@ public class ResourceUtil {
 
             for (int i = 0; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                String username = row.getCell(0).getStringCellValue();
+                String username = row.getCell(0).getStringCellValue().toLowerCase();
                 Optional<Cell> cellToAdd = Optional.ofNullable(row.getCell(1));
                 if (cellToAdd.isPresent()) {
                     int toAdd = (int) Math.round(cellToAdd.get().getNumericCellValue());

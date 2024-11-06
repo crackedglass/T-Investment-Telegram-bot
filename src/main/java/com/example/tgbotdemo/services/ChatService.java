@@ -46,14 +46,15 @@ public class ChatService {
     public void handleMessage(Message message) {
         log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id());
 
-        List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername()).toList();
+        List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername().toLowerCase())
+                .toList();
 
         User user = userService.getByUsername(message.chat().username().toLowerCase());
 
-        if (user == null && admins.contains(message.chat().username())) {
+        if (user == null && admins.contains(message.chat().username().toLowerCase())) {
             userService.save(new User(message.chat().username().toLowerCase(), 0, null));
             user = userService.getByUsername(message.chat().username().toLowerCase());
-        } else if (user == null && !admins.contains(message.chat().username())) {
+        } else if (user == null && !admins.contains(message.chat().username().toLowerCase())) {
             bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире")
                     .replyMarkup(new ReplyKeyboardRemove()));
             return;
@@ -66,7 +67,7 @@ public class ChatService {
                     action -> action.resetStateMachine(new DefaultStateMachineContext<>(state, null, null, null)));
         }
 
-        StateMachine<ChatStates, String> sm = stateMachines.get(message.chat().username());
+        StateMachine<ChatStates, String> sm = stateMachines.get(message.chat().username().toLowerCase());
 
         sm.getExtendedState().getVariables().put("msg", message);
 
@@ -92,7 +93,7 @@ public class ChatService {
                 sm.sendEvent(message.text().toLowerCase());
         }
 
-        User newUser = userService.getByUsername(message.chat().username());
+        User newUser = userService.getByUsername(message.chat().username().toLowerCase());
         newUser.setState(sm.getState().getId());
         userService.save(newUser);
         log.info(sm.getState().toString());
