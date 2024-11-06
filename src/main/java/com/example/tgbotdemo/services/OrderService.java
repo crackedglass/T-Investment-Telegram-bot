@@ -46,6 +46,9 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUsername(String username) {
+        String name = username;
+        if (name != null)
+            name = username.toLowerCase();
         return orderRepository.findByUsername(username);
     }
 
