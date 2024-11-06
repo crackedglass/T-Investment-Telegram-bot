@@ -25,9 +25,8 @@ public class CellService {
     }
 
     public List<Integer> getAvailableCellsNumbersByUsername(String username) {
-        User user = userService.getByUsername(username);
-        Guild userGuild = guildRepository
-                .findByName(user.getGuild().getName());
+        User user = userService.findByUsernameWithGuild(username);
+        Guild userGuild = user.getGuild();
         List<Cell> firstLevel = cellRepository.getAvailableCellsForLevel(1);
         List<Cell> guildCells = userGuild.getCells().stream().toList();
         Set<Integer> available = new HashSet<>();

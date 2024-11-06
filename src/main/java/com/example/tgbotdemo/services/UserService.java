@@ -15,17 +15,19 @@ public class UserService {
     private UserRepository userRepository;
 
     public User getByUsername(String username) {
+        String name = username;
         if (Optional.ofNullable(username).isPresent()) {
-            username = username.toLowerCase();
+            name = username.toLowerCase();
         }
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(name);
     }
 
     public User findByUsernameWithGuild(String username) {
+        String name = username;
         if (Optional.ofNullable(username).isPresent()) {
-            username = username.toLowerCase();
+            name = username.toLowerCase();
         }
-        return userRepository.findByUsernameWithGuild(username);
+        return userRepository.findByUsernameWithGuild(name);
     }
 
     public List<User> getAllUsers() {
@@ -37,8 +39,8 @@ public class UserService {
     }
 
     public void save(User user) {
-        String username = "";
-        if (Optional.ofNullable(user.getUsername()).isPresent()) {
+        String username = user.getUsername();
+        if (Optional.ofNullable(username).isPresent()) {
             username = user.getUsername().toLowerCase();
         }
         user.setUsername(username);
