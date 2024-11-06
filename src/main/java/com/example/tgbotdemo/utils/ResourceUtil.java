@@ -160,7 +160,7 @@ public class ResourceUtil {
                 guildService.save(guild);
                 for (Row row : sheet) {
                     try {
-                        String username = row.getCell(0).getStringCellValue();
+                        String username = row.getCell(0).getStringCellValue().toLowerCase();
                         if (username.matches("^\\\\s+$") || username == null || username.equals(""))
                             continue;
                         User user = userService.getByUsername(username);
