@@ -21,8 +21,9 @@ public class AdminService {
 
     public void save(Admin admin) {
         String username = "";
-        if (Optional.ofNullable(admin.getUsername().toLowerCase()).isPresent()) {
-            username = admin.getUsername().toLowerCase();
+        if (Optional.ofNullable(admin).isPresent()) {
+            if (Optional.ofNullable(admin.getUsername()).isPresent())
+                username = admin.getUsername().toLowerCase();
         }
         admin.setUsername(username);
         adminRepository.save(admin);

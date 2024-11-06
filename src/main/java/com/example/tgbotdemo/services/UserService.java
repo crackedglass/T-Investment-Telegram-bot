@@ -15,14 +15,14 @@ public class UserService {
     private UserRepository userRepository;
 
     public User getByUsername(String username) {
-        if (Optional.ofNullable(username.toLowerCase()).isPresent()) {
+        if (Optional.ofNullable(username).isPresent()) {
             username = username.toLowerCase();
         }
         return userRepository.findByUsername(username);
     }
 
     public User findByUsernameWithGuild(String username) {
-        if (Optional.ofNullable(username.toLowerCase()).isPresent()) {
+        if (Optional.ofNullable(username).isPresent()) {
             username = username.toLowerCase();
         }
         return userRepository.findByUsernameWithGuild(username);
@@ -38,7 +38,7 @@ public class UserService {
 
     public void save(User user) {
         String username = "";
-        if (Optional.ofNullable(user.getUsername().toLowerCase()).isPresent()) {
+        if (Optional.ofNullable(user.getUsername()).isPresent()) {
             username = user.getUsername().toLowerCase();
         }
         user.setUsername(username);
