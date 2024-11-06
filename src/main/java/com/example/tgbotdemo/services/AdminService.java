@@ -19,6 +19,7 @@ public class AdminService {
     }
 
     public void save(Admin admin) {
+        admin.setUsername(admin.getUsername().toLowerCase());
         adminRepository.save(admin);
     }
 }

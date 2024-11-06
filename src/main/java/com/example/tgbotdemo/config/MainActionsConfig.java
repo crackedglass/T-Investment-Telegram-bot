@@ -1,7 +1,5 @@
 package com.example.tgbotdemo.config;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -9,7 +7,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 
@@ -24,7 +21,6 @@ import com.example.tgbotdemo.services.ListenerService;
 import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.Keyboard;
 import com.pengrad.telegrambot.model.request.KeyboardButton;

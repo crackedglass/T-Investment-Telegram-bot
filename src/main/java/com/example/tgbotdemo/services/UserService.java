@@ -14,11 +14,11 @@ public class UserService {
     private UserRepository userRepository;
 
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username.toLowerCase());
     }
 
     public User findByUsernameWithGuild(String username) {
-        return userRepository.findByUsernameWithGuild(username);
+        return userRepository.findByUsernameWithGuild(username.toLowerCase());
     }
 
     public List<User> getAllUsers() {
@@ -30,6 +30,7 @@ public class UserService {
     }
 
     public void save(User user) {
+        user.setUsername(user.getUsername().toLowerCase());
         userRepository.save(user);
     }
 }
