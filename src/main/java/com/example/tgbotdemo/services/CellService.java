@@ -12,7 +12,7 @@ public class CellService {
     @Autowired
     private CellRepository cellRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private GuildRepository guildRepository;
 
@@ -25,8 +25,9 @@ public class CellService {
     }
 
     public List<Integer> getAvailableCellsNumbersByUsername(String username) {
+        User user = userService.getByUsername(username);
         Guild userGuild = guildRepository
-                .findByName(userRepository.findByUsername(username).getGuild().getName());
+                .findByName(user.getGuild().getName());
         List<Cell> firstLevel = cellRepository.getAvailableCellsForLevel(1);
         List<Cell> guildCells = userGuild.getCells().stream().toList();
         Set<Integer> available = new HashSet<>();
