@@ -122,6 +122,7 @@ public class TgbotdemoApplication {
 				for (Update update : updates) {
 					Optional<Message> message = Optional.ofNullable(update.message());
 					message.ifPresent(m -> {
+
 						chatService.handleMessage(m);
 					});
 				}

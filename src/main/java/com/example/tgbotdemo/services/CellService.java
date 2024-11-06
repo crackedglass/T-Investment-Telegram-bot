@@ -14,7 +14,7 @@ public class CellService {
     @Autowired
     private UserService userService;
     @Autowired
-    private GuildRepository guildRepository;
+    private GuildService guildService;
 
     public List<Cell> getAllCells() {
         return cellRepository.findAll();
@@ -25,8 +25,13 @@ public class CellService {
     }
 
     public List<Integer> getAvailableCellsNumbersByUsername(String username) {
-        User user = userService.findByUsernameWithGuild(username);
-        Guild userGuild = user.getGuild();
+        User user = userService.getByUsername(username);
+        if (user == null)
+            return List.of();
+        if (user.getGuild() == null)
+            return List.of();
+        Guild userGuild = guildService.getByName(user.getGuild().getName());
+
         List<Cell> firstLevel = cellRepository.getAvailableCellsForLevel(1);
         List<Cell> guildCells = userGuild.getCells().stream().toList();
         Set<Integer> available = new HashSet<>();
@@ -45,7 +50,11 @@ public class CellService {
         Cell cell = cellRepository.findByNumber(number);
         List<Order> orders = cell.getOrders();
         for (Order o : orders) {
-            String guildName = o.getUser().getGuild().getName();
+            Guild guild = o.getUser().getGuild();
+            if (guild == null)
+                continue;
+
+            String guildName = guild.getName();
             if (toReturn.get(guildName) == null)
                 toReturn.put(guildName, o.getAmount());
             else {

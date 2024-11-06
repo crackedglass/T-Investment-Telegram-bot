@@ -172,6 +172,12 @@ public class MainActionsConfig {
 
                     List<Integer> available = cellService
                             .getAvailableCellsNumbersByUsername(m.chat().username());
+
+                    if (available.size() == 0) {
+                        bot.execute(new SendMessage(m.chat().id(), "У вас нет гильдии").replyMarkup(menuKeyboard));
+                        sm.sendEvent("BACK_TO_MENU");
+                        return;
+                    }
                     List<Integer> owned = guildService
                             .getByName(userService.findByUsernameWithGuild(m.chat().username()).getGuild().getName())
                             .getCells()

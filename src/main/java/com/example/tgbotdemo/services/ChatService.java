@@ -63,7 +63,7 @@ public class ChatService {
             return;
         }
 
-        if (stateMachines.get(user.getUsername().toLowerCase()) == null) {
+        if (stateMachines.get(username) == null) {
             ChatStates state = user.getState();
             stateMachines.put(username, factory.getStateMachine());
             stateMachines.get(username).getStateMachineAccessor().doWithAllRegions(
