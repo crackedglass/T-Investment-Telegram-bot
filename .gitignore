@@ -1,5 +1,7 @@
 HELP.md
 .env
+TGBOT.log
+resources/
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
