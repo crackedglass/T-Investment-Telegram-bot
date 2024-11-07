@@ -227,7 +227,7 @@ public class MainActionsConfig {
                 try {
                     int amount = Integer.parseInt(m.text());
                     User user = userService.getByUsername(m.chat().username());
-                    if (amount >= 0 && amount <= user.getMoney()) {
+                    if (amount > 0 && amount <= user.getMoney()) {
                         Cell cell = cellService.getByNumber(cell_number);
                         orderService.create(user, cell, amount);
                         bot.execute(new SendMessage(m.chat().id(),
