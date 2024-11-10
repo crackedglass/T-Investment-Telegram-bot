@@ -62,13 +62,22 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .action(mainActionsConfig.getUserOrders())
                 .and()
                 .withExternal()
-                .source(ChatStates.MAIN).target(ChatStates.INFO_ASKING_CELL)
-                .event("сколько гильдии инвестировали в территории").action(mainActionsConfig.getGuildOrders())
+                .source(ChatStates.MAIN)
+                .event("сколько гильдии инвестировали в территории").target(ChatStates.INFO_ASKING_CELL)
+                .action(mainActionsConfig.getGuildOrders())
                 .guard(guardsConfig.isBlocked())
+                .and()
+                .withInternal()
+                .source(ChatStates.MAIN)
+                .event("обзор карты").action(mainActionsConfig.getOverwiew()).guard(guardsConfig.isBlocked())
                 .and()
                 .withExternal()
                 .source(ChatStates.MAIN).target(ChatStates.ADMIN).event("/admin").guard(guardsConfig.adminGuard())
                 .action(adminActionsConfig.sendAdminMenu())
+                // From INFO_ASKING_CELL state
+                .and()
+                .withExternal()
+                .source(ChatStates.INFO_ASKING_CELL).target(ChatStates.MAIN).event("BACK_TO_MENU")
                 // From ORDER_ASKING_CELL state
                 .and()
                 .withExternal()
@@ -81,27 +90,6 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withExternal()
                 .source(ChatStates.ORDER_ASKING_AMOUNT).target(ChatStates.MAIN).event("BACK_TO_MENU")
-                // From ASKING_ACTION state
-                .and()
-                .withExternal()
-                .source(ChatStates.ASKING_ACTION).target(ChatStates.MAIN).event("BACK_TO_MENU")
-                .and()
-                .withExternal()
-                .source(ChatStates.ASKING_ACTION).target(ChatStates.ASKING_TO_DELETE)
-                .event("убрать вложение").guard(guardsConfig.isBlocked())
-                // From ASKING_TO_DELETE state
-                .and()
-                .withExternal()
-                .source(ChatStates.ASKING_TO_DELETE).target(ChatStates.ASKING_ACTION)
-                .event("WRONG_ORDER_TO_DELETE")
-                .and()
-                .withExternal()
-                .source(ChatStates.ASKING_TO_DELETE).target(ChatStates.ASKING_ACTION)
-                .event("SUCCESSFULLY_DELETED")
-                // From INFO_ASKING_CELL state
-                .and()
-                .withExternal()
-                .source(ChatStates.INFO_ASKING_CELL).target(ChatStates.MAIN).event("BACK_TO_MENU")
                 // From ADMIN
                 .and()
                 .withExternal()
@@ -136,23 +124,18 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<ChatStates
                 .and()
                 .withInternal()
                 .source(ChatStates.ADMIN).event("показать поле")
-                .action(adminActionsConfig.showMap());
+                .action(adminActionsConfig.showMap())
+                .and()
+                .withInternal()
+                .source(ChatStates.ADMIN).event("выгрузить бд")
+                .action(adminActionsConfig.uploadDB());
+
     }
 
     @Override
     public void configure(StateMachineConfigurationConfigurer<ChatStates, String> config) throws Exception {
         config.withConfiguration()
-                .autoStartup(true)
-                .listener(listener());
+                .autoStartup(true);
     }
 
-    @Bean
-    public StateMachineListener<ChatStates, String> listener() {
-        return new StateMachineListenerAdapter<ChatStates, String>() {
-            @Override
-            public void stateChanged(State<ChatStates, String> from, State<ChatStates, String> to) {
-                log.info("State changed to " + to.getId());
-            }
-        };
-    }
 }

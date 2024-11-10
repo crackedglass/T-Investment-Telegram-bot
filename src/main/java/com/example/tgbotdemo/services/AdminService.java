@@ -19,6 +19,14 @@ public class AdminService {
         return adminRepository.findAll();
     }
 
+    public Admin findByName(String name) {
+        String username = name;
+        if (Optional.ofNullable(username).isPresent()) {
+            username = username.toLowerCase();
+        }
+        return adminRepository.findByUsername(username);
+    }
+
     public void save(Admin admin) {
         String username = "";
         if (Optional.ofNullable(admin).isPresent()) {

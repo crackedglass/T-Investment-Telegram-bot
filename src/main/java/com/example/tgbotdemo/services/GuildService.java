@@ -1,5 +1,7 @@
 package com.example.tgbotdemo.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,10 @@ public class GuildService {
 
     public Guild getByName(String name) {
         return guildRepository.findByName(name);
+    }
+
+    public List<Guild> findAll() {
+        return guildRepository.findAll();
     }
 
     public void deleteAll() {

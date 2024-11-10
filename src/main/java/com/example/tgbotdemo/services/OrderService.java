@@ -16,6 +16,8 @@ import com.example.tgbotdemo.domain.*;
 @Service
 public class OrderService {
     @Autowired
+    private UserService userService;
+    @Autowired
     private OrderRepository orderRepository;
     @Autowired
     private UserRepository userRepository;
@@ -46,10 +48,8 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUsername(String username) {
-        String name = username;
-        if (name != null)
-            name = username.toLowerCase();
-        return orderRepository.findByUsername(username);
+        User user = userService.getByUsername(username);
+        return orderRepository.findByUser(user);
     }
 
     @Transactional

@@ -11,8 +11,7 @@ import com.example.tgbotdemo.domain.*;
 @Repository
 public interface CellRepository extends JpaRepository<Cell, Long> {
 
-    @Query("SELECT c FROM Cell c WHERE c.ownerGuild IS NULL AND c.level=:level")
-    public List<Cell> getAvailableCellsForLevel(int level);
+    public List<Cell> findByLevel(int level);
 
     @Query("SELECT c FROM Cell c LEFT JOIN FETCH c.orders WHERE c.number=:number")
     public Cell findByNumber(int number);

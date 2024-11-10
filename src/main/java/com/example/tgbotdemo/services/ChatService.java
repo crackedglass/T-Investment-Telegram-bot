@@ -44,7 +44,8 @@ public class ChatService {
 
     @SuppressWarnings("deprecation")
     public void handleMessage(Message message) {
-        log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id());
+        log.info("Message recieved: \"" + message.text() + "\" from chat: " + message.chat().id() + " username: "
+                + message.chat().username());
 
         List<String> admins = adminService.getAllAdmins().stream().map(item -> item.getUsername().toLowerCase())
                 .toList();
@@ -99,7 +100,6 @@ public class ChatService {
         User newUser = userService.getByUsername(username);
         newUser.setState(sm.getState().getId());
         userService.save(newUser);
-        log.info(sm.getState().toString());
     }
 
 }

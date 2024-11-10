@@ -12,7 +12,6 @@ import com.example.tgbotdemo.domain.*;
 import com.example.tgbotdemo.services.AdminService;
 import com.example.tgbotdemo.services.CellService;
 import com.example.tgbotdemo.services.ChatService;
-import com.example.tgbotdemo.services.GuildService;
 import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,13 +32,11 @@ public class TgbotdemoApplication {
 	@Autowired
 	private ChatService chatService;
 	@Autowired
-	private GuildService guildService;
-	@Autowired
 	private UserService userService;
 	@Autowired
-	private OrderService orderService;
-	@Autowired
 	private CellService cellService;
+	@Autowired
+	private OrderService orderService;
 	@Autowired
 	private AdminService adminService;
 
@@ -53,8 +50,6 @@ public class TgbotdemoApplication {
 	@Bean
 	ApplicationRunner runner(Environment environment) {
 		return args -> {
-			// Faker faker = new Faker();
-
 			List<Cell> check_cells = cellService.getAllCells();
 			if (check_cells.size() == 0) {
 				try {
@@ -75,48 +70,20 @@ public class TgbotdemoApplication {
 						cellService.save(newCell);
 						cells.add(newCell);
 					}
-					// List<Guild> guilds = new ArrayList<>();
-					// for (int i = 1; i <= 3; i++) {
-					// guilds.add(new Guild("Guild " + i));
-					// guildService.save(guilds.getLast());
-					// }
-
-					// List<User> users = new ArrayList<>();
-
-					// for (Guild g : guilds) {
-					// for (int i = 0; i <= 50; i++) {
-					// User fakeUser = new User(faker.name().username(),
-					// faker.number().numberBetween(100, 1000), g);
-					// userService.save(fakeUser);
-					// users.add(fakeUser);
-					// }
-					// }
-
-					// for (User u : users) {
-					// orderService
-					// .save(new Order(u, cells.get(new Random().nextInt(0, 12)),
-					// new Random().nextInt(10, 100)));
-					// }
-
-					// Guild toSave = guilds.getFirst();
-					// userService.save(new User("mymarichko", 10000, toSave));
-					// userService.save(new User("ya_qlgn", 523, toSave));
-					// userService.save(new User("Ereteik", 1000, guilds.getLast()));
 
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
 			}
 
-			adminService.save(new Admin("ya_qlgn"));
+			if (adminService.findByName("ya_qlgn") == null)
+				adminService.save(new Admin("ya_qlgn"));
 			if (userService.getByUsername("ya_qlgn") == null)
 				userService.save(new User("ya_qlgn", 0, null));
-			adminService.save(new Admin("Ereteik"));
+			if (adminService.findByName("Ereteik") == null)
+				adminService.save(new Admin("ereteik"));
 			if (userService.getByUsername("Ereteik") == null)
 				userService.save(new User("Ereteik", 0, null));
-
-			// userService.save(new User("ya_qlgn", 0, null));
 
 			bot.setUpdatesListener(updates -> {
 				for (Update update : updates) {

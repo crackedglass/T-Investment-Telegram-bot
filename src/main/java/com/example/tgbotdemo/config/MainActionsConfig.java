@@ -1,9 +1,15 @@
 package com.example.tgbotdemo.config;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.aspectj.internal.lang.annotation.ajcPrivileged;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +66,8 @@ public class MainActionsConfig {
                     { new KeyboardButton("Сколько серебра у моей гильдии") },
                     { new KeyboardButton("Инвестировать в территорию") },
                     { new KeyboardButton("Мои инвестиции в территории") },
-                    { new KeyboardButton("Сколько гильдии инвестировали в территории") }
+                    { new KeyboardButton("Сколько гильдии инвестировали в территории") },
+                    { new KeyboardButton("Обзор карты") }
             });
 
     @Bean
@@ -84,7 +91,7 @@ public class MainActionsConfig {
         return context -> {
             Message message = (Message) context.getExtendedState().getVariables().get("msg");
             bot.execute(new SendMessage(message.chat().id(), "Вы не зарегистрированы в турнире"));
-            log.info("declined Bean called");
+            log.info("Declined for id: " + message.chat().id() + " username:" + message.chat().username());
         };
     }
 
@@ -103,10 +110,17 @@ public class MainActionsConfig {
             Long chatId = message.chat().id();
             String username = message.chat().username().toLowerCase();
             User user = userService.getByUsername(username);
-            log.info(user.toString());
+
             if (Optional.ofNullable(user).isPresent()) {
 
                 Guild guild = guildService.getByName(user.getGuild().getName());
+
+                if (guild == null) {
+                    log.error("Guild for user: " + message.chat().username() + " not found");
+                    bot.execute(new SendMessage(message.chat().id(),
+                            "Ваша гильдия не найдена. Обратитесь за помощью к счетоводу."));
+                    return;
+                }
 
                 List<String> toDisplay = guild
                         .getUsers()
@@ -116,12 +130,20 @@ public class MainActionsConfig {
                         .limit(10)
                         .toList();
 
+                if (toDisplay.size() == 0) {
+                    bot.execute(new SendMessage(message.chat().id(), "Вы один в гильдии"));
+                    return;
+                }
+
                 int sum = guild.getUsers().stream().mapToInt(u -> u.getMoney()).sum();
 
-                String text = "Твоя гильдия заработала " + sum + " серебра\nТоп 10 твоих соратников:\n"
+                String text = String.format("Твоя гильдия заработала " + sum + " серебра\nТоп %d твоих соратников:\n",
+                        toDisplay.size())
                         + String.join("\n", toDisplay);
 
                 bot.execute(new SendMessage(chatId, text));
+            } else {
+                log.error("User " + message.chat().username() + " not found");
             }
         };
     }
@@ -137,6 +159,9 @@ public class MainActionsConfig {
             if (Optional.ofNullable(user).isPresent()) {
                 int money = user.getMoney();
                 bot.execute(new SendMessage(chatId, String.format("У вас %d серебра", money)));
+            } else {
+                log.error("User " + message.chat().username() + " not found");
+                bot.execute(new SendMessage(chatId, "Вы не найдены в базе данных"));
             }
         };
     }
@@ -176,20 +201,11 @@ public class MainActionsConfig {
                     if (available.size() == 0) {
                         bot.execute(new SendMessage(m.chat().id(), "У вас нет гильдии").replyMarkup(menuKeyboard));
                         sm.sendEvent("BACK_TO_MENU");
+                        log.error("Available cells for user: " + m.chat().username() + " not found");
                         return;
                     }
-                    List<Integer> owned = guildService
-                            .getByName(userService.findByUsernameWithGuild(m.chat().username()).getGuild().getName())
-                            .getCells()
-                            .stream().mapToInt(i -> i.getNumber()).boxed().toList();
 
-                    if (owned.contains(cellNumber)) {
-                        bot.execute(new SendMessage(m.chat().id(),
-                                "Это ваша территория")
-                                .replyMarkup(menuKeyboard));
-                        sm.sendEvent("BACK_TO_MENU");
-                        return;
-                    } else if (available.contains(cellNumber)) {
+                    if (available.contains(cellNumber)) {
                         context.getExtendedState().getVariables().put("cell", cellNumber);
                         sm.sendEvent("NEXT");
                         return;
@@ -281,6 +297,46 @@ public class MainActionsConfig {
 
     @SuppressWarnings("deprecation")
     @Bean
+    public Action<ChatStates, String> getOverwiew() {
+        return context -> {
+
+            Message message = (Message) context.getExtendedState().getVariables().get("msg");
+
+            List<Cell> cells = cellService.getAllCells();
+            cells.sort((a, b) -> (a.getNumber() > b.getNumber()) ? 1 : -1);
+
+            Guild userGuild = userService.findByUsernameWithGuild(message.chat().username()).getGuild();
+
+            StringBuilder list = new StringBuilder("Статистика по клеткам:\n");
+
+            for (Cell cell : cells) {
+                int numberOfCell = cell.getNumber();
+                var sumsOfGuildsOrders = cellService.getSumOfOrdersOfGuildByNumber(numberOfCell);
+
+                if (sumsOfGuildsOrders.size() != 0) {
+                    Entry<String, Integer> max = Collections.max(sumsOfGuildsOrders.entrySet(),
+                            Map.Entry.comparingByValue());
+
+                    list.append(
+                            String.format("Клетка %d:\n    Лидер: %s - %d\n", numberOfCell, max.getKey(),
+                                    max.getValue()));
+
+                    if (!max.getKey().equals(userGuild.getName())) {
+                        Integer sum = sumsOfGuildsOrders.get(userGuild.getName());
+                        if (sum == null)
+                            sum = 0;
+                        list.append(String.format("    Ваша гильдия: %d\n", sum));
+                    }
+                } else {
+                    list.append(String.format("Клетка %d\n    Нет вложений\n", numberOfCell));
+                }
+            }
+            bot.execute(new SendMessage(message.chat().id(), list.toString()));
+        };
+    }
+
+    @SuppressWarnings("deprecation")
+    @Bean
     public Action<ChatStates, String> getGuildOrders() {
         return context -> {
 
@@ -311,16 +367,9 @@ public class MainActionsConfig {
                         String ownerGuildName = cellService
                                 .getOwnerGuildNameByNumber(cellNumber);
 
-                        if (ownerGuildName != null) {
-                            bot.execute(new SendMessage(message.chat().id(), "Клеткой владеет гильдия: "
-                                    + ownerGuildName).replyMarkup(menuKeyboard));
-                            sm.sendEvent("BACK_TO_MENU");
-                            return;
-                        }
-
                         var orders = cellService.getSumOfOrdersOfGuildByNumber(cellNumber);
 
-                        if (orders.size() == 0) {
+                        if (orders.size() == 0 && ownerGuildName == null) {
                             bot.execute(new SendMessage(message.chat().id(),
                                     "Эта клетка не принадлежит никакой гильдии\n\nИнвестируйте и помогайте своей гильдии захватывать территории.")
                                     .replyMarkup(menuKeyboard));
@@ -328,11 +377,21 @@ public class MainActionsConfig {
                             return;
                         }
 
-                        StringBuilder answer = new StringBuilder(
-                                "Вложения в эту клетку:\n");
-                        Set<String> keySet = orders.keySet();
-                        for (String key : keySet) {
-                            answer.append(key + " : " + orders.get(key) + "\n");
+                        StringBuilder answer = new StringBuilder();
+                        if (ownerGuildName != null) {
+                            answer.append(String.format("Клеткой владеет гильдия: %s\n", ownerGuildName));
+                        }
+
+                        List<String> keys = orders.keySet().stream().collect(Collectors.toList());
+
+                        if (keys.size() == 0) {
+                            answer.append("Вложений нет\n");
+                        } else {
+                            answer.append("Вложения в эту клетку:\n");
+                            keys.sort((a, b) -> (orders.get(a) > orders.get(b)) ? -1 : 1);
+                            for (String key : keys) {
+                                answer.append("    " + key + " : " + orders.get(key) + "\n");
+                            }
                         }
                         bot.execute(new SendMessage(message.chat().id(), answer.toString()).replyMarkup(menuKeyboard));
                     }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -14,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,13 +22,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import com.example.tgbotdemo.domain.Guild;
 import com.example.tgbotdemo.domain.User;
+import com.example.tgbotdemo.services.CellService;
 import com.example.tgbotdemo.services.GuildService;
 import com.example.tgbotdemo.services.OrderService;
 import com.example.tgbotdemo.services.UserService;
@@ -44,9 +42,8 @@ public class ResourceUtil {
     private GuildService guildService;
     @Autowired
     private OrderService orderService;
-
     @Autowired
-    private ResourceLoader resourceLoader;
+    private CellService cellService;
 
     @Autowired
     private Environment environment;
@@ -74,6 +71,49 @@ public class ResourceUtil {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    public File generateDBDump() {
+        Workbook wb = new XSSFWorkbook();
+        List<Guild> guilds = guildService.findAll();
+        for (Guild guild : guilds) {
+            Sheet sheet = wb.createSheet(guild.getName());
+            List<User> users = guild.getUsers().stream().toList();
+            sheet.setColumnWidth(0, 256 * 64);
+            sheet.setColumnWidth(1, 256 * 20);
+            for (int i = 0; i < users.size(); i++) {
+                Row row = sheet.createRow(i);
+                Cell username = row.createCell(0);
+                Cell money = row.createCell(1);
+                User user = users.get(i);
+                username.setCellValue(user.getUsername());
+                money.setCellValue(user.getMoney());
+            }
+        }
+        Sheet cellSheet = wb.createSheet("Клетки");
+        List<com.example.tgbotdemo.domain.Cell> cells = cellService.getAllCells();
+        cells.sort((a, b) -> (a.getNumber() > b.getNumber()) ? 1 : -1);
+        for (int i = 0; i < cells.size(); i++) {
+            com.example.tgbotdemo.domain.Cell cell = cells.get(i);
+            Row row = cellSheet.createRow(i);
+            Cell cellNumber = row.createCell(0);
+            Cell cellGuild = row.createCell(1);
+            cellNumber.setCellValue(cell.getNumber());
+            Guild ownerGuild = cell.getOwnerGuild();
+            if (ownerGuild != null)
+                cellGuild.setCellValue(ownerGuild.getName());
+        }
+
+        try {
+            File file = new File("resources/temp/dbDump.xlsx");
+            FileOutputStream outputStream = new FileOutputStream(file);
+            wb.write(outputStream);
+            wb.close();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

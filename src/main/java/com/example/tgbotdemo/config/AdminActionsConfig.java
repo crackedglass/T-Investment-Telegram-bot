@@ -67,6 +67,7 @@ public class AdminActionsConfig {
             { new KeyboardButton("Закрепить клетки за гильдиями") },
             { new KeyboardButton("Очистить поле") },
             { new KeyboardButton("Показать поле") },
+            { new KeyboardButton("Выгрузить БД") },
             { new KeyboardButton("Выйти в главное меню") }
     });
 
@@ -78,6 +79,7 @@ public class AdminActionsConfig {
             { new KeyboardButton("Закрепить клетки за гильдиями") },
             { new KeyboardButton("Очистить поле") },
             { new KeyboardButton("Показать поле") },
+            { new KeyboardButton("Выгрузить БД") },
             { new KeyboardButton("Выйти в главное меню") }
     });
 
@@ -205,6 +207,8 @@ public class AdminActionsConfig {
 
                 if (sumsOfGuildsOrders.size() != 0) {
                     Set<String> keySet = sumsOfGuildsOrders.keySet();
+                    // int max = sumsOfGuildsOrders.values().stream().max((a, b) -> (a > b) ? 1 :
+                    // -1).get();
                     String maxGuildName = keySet.stream()
                             .reduce((a, b) -> sumsOfGuildsOrders.get(a) > sumsOfGuildsOrders.get(b) ? a : b).get();
                     Guild winner = guildService.getByName(maxGuildName);
@@ -296,6 +300,15 @@ public class AdminActionsConfig {
             }
 
             bot.execute(new SendMessage(message.chat().id(), sb.toString()));
+        };
+    }
+
+    @Bean
+    public Action<ChatStates, String> uploadDB() {
+        return context -> {
+            Message message = (Message) context.getExtendedState().getVariables().get("msg");
+
+            bot.execute(new SendDocument(message.chat().id(), resourceUtil.generateDBDump()));
         };
     }
 

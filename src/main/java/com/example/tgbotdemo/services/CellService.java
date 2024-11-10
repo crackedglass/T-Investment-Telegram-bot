@@ -32,14 +32,14 @@ public class CellService {
             return List.of();
         Guild userGuild = guildService.getByName(user.getGuild().getName());
 
-        List<Cell> firstLevel = cellRepository.getAvailableCellsForLevel(1);
+        List<Cell> firstLevel = cellRepository.findByLevel(1);
         List<Cell> guildCells = userGuild.getCells().stream().toList();
         Set<Integer> available = new HashSet<>();
         firstLevel.stream().forEach(item -> available.add(item.getNumber()));
         for (Cell c : guildCells) {
             int[] neighbours = c.getNeighbours();
             for (int i : neighbours)
-                available.add(cellRepository.findByNumber(i).getNumber());
+                available.add(i);
         }
         return available.stream().toList();
     }
