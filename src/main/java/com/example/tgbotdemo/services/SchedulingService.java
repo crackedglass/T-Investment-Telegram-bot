@@ -29,22 +29,23 @@ public class SchedulingService {
     @Autowired
     private UserService userService;
 
-    @Scheduled(cron = "@hourly")
-    @Transactional
-    public void addMoneyToLeaders() {
-        List<Cell> cells = cellService.getAllCells();
-        for (Cell cell : cells) {
-            var orders = cellService.getSumOfOrdersOfGuildByNumber(cell.getNumber());
-            if (orders.size() == 0)
-                continue;
-            String leaderGuildName = Collections.max(orders.entrySet(), Map.Entry.comparingByValue()).getKey();
-            Guild leaderGuild = guildService.getByName(leaderGuildName);
-            Set<User> users = leaderGuild.getUsers();
-            for (User user : users) {
-                user.setMoney(user.getMoney() + 200);
-                log.info("Added 200 to users of guild: " + leaderGuild.getName());
-                userService.save(user);
-            }
-        }
-    }
+    // @Scheduled(cron = "@hourly")
+    // @Transactional
+    // public void addMoneyToLeaders() {
+    // List<Cell> cells = cellService.getAllCells();
+    // for (Cell cell : cells) {
+    // var orders = cellService.getSumOfOrdersOfGuildByNumber(cell.getNumber());
+    // if (orders.size() == 0)
+    // continue;
+    // String leaderGuildName = Collections.max(orders.entrySet(),
+    // Map.Entry.comparingByValue()).getKey();
+    // Guild leaderGuild = guildService.getByName(leaderGuildName);
+    // Set<User> users = leaderGuild.getUsers();
+    // for (User user : users) {
+    // user.setMoney(user.getMoney() + 200);
+    // log.info("Added 200 to users of guild: " + leaderGuild.getName());
+    // userService.save(user);
+    // }
+    // }
+    // }
 }

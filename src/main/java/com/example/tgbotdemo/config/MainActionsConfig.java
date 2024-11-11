@@ -321,11 +321,14 @@ public class MainActionsConfig {
                             String.format("Клетка %d:\n    Лидер: %s - %d\n", numberOfCell, max.getKey(),
                                     max.getValue()));
 
-                    if (!max.getKey().equals(userGuild.getName())) {
-                        Integer sum = sumsOfGuildsOrders.get(userGuild.getName());
-                        if (sum != null)
-                            list.append(String.format("    Ваша гильдия: %d\n", sum));
+                    if (userGuild != null) {
+                        if (!max.getKey().equals(userGuild.getName())) {
+                            Integer sum = sumsOfGuildsOrders.get(userGuild.getName());
+                            if (sum != null)
+                                list.append(String.format("    Ваша гильдия: %d\n", sum));
+                        }
                     }
+
                 } else {
                     list.append(String.format("Клетка %d\n    Нет вложений\n", numberOfCell));
                 }
