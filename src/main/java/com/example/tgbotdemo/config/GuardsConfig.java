@@ -45,7 +45,10 @@ public class GuardsConfig {
 
             List<String> admins = adminService.getAllAdmins().stream().map(i -> i.getUsername()).toList();
 
-            if (admins.contains(message.chat().username()))
+            String username = message.chat().username();
+            if (username != null)
+                username = username.toLowerCase();
+            if (admins.contains(username))
                 return true;
 
             return false;
