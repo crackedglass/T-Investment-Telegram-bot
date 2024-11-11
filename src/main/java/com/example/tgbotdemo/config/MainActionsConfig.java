@@ -323,9 +323,8 @@ public class MainActionsConfig {
 
                     if (!max.getKey().equals(userGuild.getName())) {
                         Integer sum = sumsOfGuildsOrders.get(userGuild.getName());
-                        if (sum == null)
-                            sum = 0;
-                        list.append(String.format("    Ваша гильдия: %d\n", sum));
+                        if (sum != null)
+                            list.append(String.format("    Ваша гильдия: %d\n", sum));
                     }
                 } else {
                     list.append(String.format("Клетка %d\n    Нет вложений\n", numberOfCell));

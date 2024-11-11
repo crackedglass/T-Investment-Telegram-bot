@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.tgbotdemo.domain.Cell;
 import com.example.tgbotdemo.domain.Guild;
-import com.example.tgbotdemo.domain.Order;
 import com.example.tgbotdemo.domain.User;
 
 import lombok.extern.slf4j.Slf4j;

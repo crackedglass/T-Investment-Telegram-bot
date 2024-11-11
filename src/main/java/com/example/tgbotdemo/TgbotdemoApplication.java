@@ -36,8 +36,6 @@ public class TgbotdemoApplication {
 	@Autowired
 	private CellService cellService;
 	@Autowired
-	private OrderService orderService;
-	@Autowired
 	private AdminService adminService;
 
 	@Autowired
