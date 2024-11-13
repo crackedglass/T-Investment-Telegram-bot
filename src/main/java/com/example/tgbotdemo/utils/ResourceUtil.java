@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -147,15 +148,43 @@ public class ResourceUtil {
                     data.put(username, toAdd);
                 }
             }
+
+            HashMap<String, Integer> guildCount = new HashMap<>();
+
             for (String u : data.keySet()) {
-                User user = userService.getByUsername(u);
-                if (user == null) {
+                User user = userService.findByUsernameWithGuild(u);
+                if (user == null)
                     continue;
-                }
-                user.setMoney(user.getMoney() + data.get(u));
+
+                Guild guild = user.getGuild();
+                if (guild == null)
+                    continue;
+
+                Integer sum = guildCount.get(guild.getName());
+                if (sum == null)
+                    sum = 0;
+
+                guildCount.put(guild.getName(), sum + data.get(u));
+            }
+
+            List<String> guildsRating = guildCount.entrySet().stream()
+                    .sorted((a, b) -> (a.getValue() > b.getValue()) ? -1 : 1).map(Entry::getKey)
+                    .toList();
+
+            for (String u : data.keySet()) {
+                User user = userService.findByUsernameWithGuild(u);
+                if (user == null)
+                    continue;
+
+                Guild guild = user.getGuild();
+                if (guild == null)
+                    continue;
+
+                user.setMoney(
+                        user.getMoney() + (int) (data.get(u) * (1 + 0.1 * guildsRating.indexOf(guild.getName()))));
                 userService.save(user);
             }
-            log.info(data.toString());
+
             workbook.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,6 +215,10 @@ public class ResourceUtil {
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             fileOutputStream.close();
             log.info(String.format("File downloaded"));
+            cellService.getAllCells().stream().forEach(cell -> {
+                cell.setOwnerGuild(null);
+                cellService.save(cell);
+            });
             orderService.deleteAll();
             userService.deleteAll();
             guildService.deleteAll();

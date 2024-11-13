@@ -1,6 +1,7 @@
 package com.example.tgbotdemo.services;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,23 +30,39 @@ public class SchedulingService {
     @Autowired
     private UserService userService;
 
-    // @Scheduled(cron = "@hourly")
-    // @Transactional
-    // public void addMoneyToLeaders() {
-    // List<Cell> cells = cellService.getAllCells();
-    // for (Cell cell : cells) {
-    // var orders = cellService.getSumOfOrdersOfGuildByNumber(cell.getNumber());
-    // if (orders.size() == 0)
-    // continue;
-    // String leaderGuildName = Collections.max(orders.entrySet(),
-    // Map.Entry.comparingByValue()).getKey();
-    // Guild leaderGuild = guildService.getByName(leaderGuildName);
-    // Set<User> users = leaderGuild.getUsers();
-    // for (User user : users) {
-    // user.setMoney(user.getMoney() + 200);
-    // log.info("Added 200 to users of guild: " + leaderGuild.getName());
-    // userService.save(user);
-    // }
-    // }
-    // }
+    @Scheduled(cron = "0 0 12-23,0 * * *")
+    @Transactional
+    public void addMoneyToLeaders() {
+        List<Guild> guilds = guildService.findAll();
+        HashMap<String, Integer> leadershipCount = new HashMap<>();
+        guilds.stream().forEach(g -> leadershipCount.put(g.getName(), 0));
+
+        List<Cell> cells = cellService.getAllCells();
+        for (Cell cell : cells) {
+            var orders = cellService.getSumOfOrdersOfGuildByNumber(cell.getNumber());
+            if (orders.size() == 0)
+                continue;
+            String leaderGuildName = Collections.max(orders.entrySet(),
+                    Map.Entry.comparingByValue()).getKey();
+
+            Integer newLeadershipCountForGuild = leadershipCount.get(leaderGuildName) + 1;
+            leadershipCount.put(leaderGuildName, newLeadershipCountForGuild);
+
+            if (newLeadershipCountForGuild <= 3) {
+                Guild leaderGuild = guilds.stream().filter(x -> x.getName().equals(leaderGuildName)).findAny()
+                        .orElse(null);
+
+                if (leaderGuild != null) {
+                    Set<User> users = leaderGuild.getUsers();
+                    for (User user : users) {
+                        user.setMoney(user.getMoney() + 100);
+                        log.info("Added 100 to users of guild: " + leaderGuild.getName());
+                        userService.save(user);
+                    }
+                } else {
+                    log.info(String.format("Guild %s not found", leaderGuildName));
+                }
+            }
+        }
+    }
 }
