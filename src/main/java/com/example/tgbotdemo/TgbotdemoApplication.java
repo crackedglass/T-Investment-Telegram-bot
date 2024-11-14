@@ -21,9 +21,13 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Slf4j
@@ -106,5 +110,12 @@ public class TgbotdemoApplication {
 			log.info("Bot created with token " + bot.getToken());
 		};
 	};
+
+	@PostConstruct
+	public void init() {
+		TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"));
+		log.info(TimeZone.getDefault().toString());
+		log.info(LocalTime.now().toString());
+	}
 
 }
