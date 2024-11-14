@@ -30,7 +30,7 @@ public class SchedulingService {
     @Autowired
     private UserService userService;
 
-    @Scheduled(cron = "0 0 12-23,0 * * *")
+    @Scheduled(cron = "0 0 4-16 * * *")
     @Transactional
     public void addMoneyToLeaders() {
         List<Guild> guilds = guildService.findAll();
