@@ -30,7 +30,7 @@ public class SchedulingService {
     @Autowired
     private UserService userService;
 
-    @Scheduled(cron = "0 0 4-16 * * *")
+    @Scheduled(cron = "0 0 12-23,0 * * *", zone = "Europe/Moscow")
     @Transactional
     public void addMoneyToLeaders() {
         List<Guild> guilds = guildService.findAll();
@@ -56,7 +56,7 @@ public class SchedulingService {
                     Set<User> users = leaderGuild.getUsers();
                     for (User user : users) {
                         user.setMoney(user.getMoney() + 100);
-                        log.info("Added 100 to users of guild: " + leaderGuild.getName());
+                        log.info("Added 100 to user:" + user.getUsername() + "of guild: " + leaderGuild.getName());
                         userService.save(user);
                     }
                 } else {
