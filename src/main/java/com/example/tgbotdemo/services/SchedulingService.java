@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,14 +20,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SchedulingService {
 
-    @Autowired
     private CellService cellService;
-    @Autowired
     private GuildService guildService;
-    @Autowired
-    private OrderService orderService;
-    @Autowired
     private UserService userService;
+
+    public SchedulingService(CellService cs, GuildService gs, UserService us) {
+        cellService = cs;
+        guildService = gs;
+        userService = us;
+    }
 
     @Scheduled(cron = "0 0 12-23,0 * * *", zone = "Europe/Moscow")
     @Transactional

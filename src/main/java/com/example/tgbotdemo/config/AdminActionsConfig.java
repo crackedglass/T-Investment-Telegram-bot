@@ -2,7 +2,6 @@ package com.example.tgbotdemo.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
@@ -38,32 +37,19 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class AdminActionsConfig {
 
-    @Autowired
-    private ResourceUtil resourceUtil;
-
-    @Autowired
-    private ListenerService listenerService;
-
-    @Autowired
     private BlockService blockService;
-
-    @Autowired
     private CellService cellService;
-
-    @Autowired
     private GuildService guildService;
-
-    @Autowired
+    private ListenerService listenerService;
     private OrderService orderService;
-
-    @Autowired
+    private ResourceUtil resourceUtil;
     private TelegramBot bot;
 
     private Keyboard unblockedKeyboard = new ReplyKeyboardMarkup(new KeyboardButton[][] {
             { new KeyboardButton("Остановить вложения") },
             { new KeyboardButton("Добавить серебро пользователям") },
             { new KeyboardButton("Загрузить таблицу с пользователями") },
-            { new KeyboardButton("Загрузить карту") }, // TODO
+            { new KeyboardButton("Загрузить карту") },
             { new KeyboardButton("Закрепить клетки за гильдиями") },
             { new KeyboardButton("Очистить поле") },
             { new KeyboardButton("Показать поле") },
@@ -82,6 +68,18 @@ public class AdminActionsConfig {
             { new KeyboardButton("Выгрузить БД") },
             { new KeyboardButton("Выйти в главное меню") }
     });
+
+    public AdminActionsConfig(BlockService blockService, CellService cellService, GuildService guildService,
+            ListenerService listenerService, OrderService orderService, ResourceUtil resourceUtil,
+            TelegramBot telegramBot) {
+        this.blockService = blockService;
+        this.cellService = cellService;
+        this.guildService = guildService;
+        this.listenerService = listenerService;
+        this.orderService = orderService;
+        this.resourceUtil = resourceUtil;
+        this.bot = telegramBot;
+    }
 
     @Bean
     public Action<ChatStates, String> sendAdminMenu() {

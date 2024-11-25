@@ -1,5 +1,5 @@
 HELP.md
-.env
+*.env
 *.log*
 resources/
 target/

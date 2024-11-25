@@ -4,12 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.aspectj.internal.lang.annotation.ajcPrivileged;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -295,7 +291,6 @@ public class MainActionsConfig {
         };
     }
 
-    @SuppressWarnings("deprecation")
     @Bean
     public Action<ChatStates, String> getOverwiew() {
         return context -> {
