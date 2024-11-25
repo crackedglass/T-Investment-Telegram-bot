@@ -20,13 +20,9 @@ import com.pengrad.telegrambot.request.SendMessage;
 
 @Configuration
 public class GuardsConfig {
-    @Autowired
+
     private AdminService adminService;
-
-    @Autowired
     private BlockService blockService;
-
-    @Autowired
     private TelegramBot bot;
 
     private Keyboard menuKeyboard = new ReplyKeyboardMarkup(
@@ -37,6 +33,12 @@ public class GuardsConfig {
                     { new KeyboardButton("Мои инвестиции в территории") },
                     { new KeyboardButton("Сколько гильдии инвестировали в территории") }
             });
+
+    public GuardsConfig(AdminService adminService, BlockService blockService, TelegramBot bot){
+        this.adminService = adminService;
+        this.blockService = blockService;
+        this.bot = bot;
+    }
 
     @Bean
     public Guard<ChatStates, String> adminGuard() {

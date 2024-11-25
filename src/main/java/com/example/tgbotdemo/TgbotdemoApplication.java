@@ -30,17 +30,20 @@ import java.util.*;
 @Slf4j
 @SpringBootApplication
 public class TgbotdemoApplication {
-	@Autowired
-	private ChatService chatService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private CellService cellService;
-	@Autowired
-	private AdminService adminService;
 
-	@Autowired
+	private AdminService adminService;
+	private CellService cellService;
+	private ChatService chatService;
+	private UserService userService;
 	private TelegramBot bot;
+
+	public TgbotdemoApplication(AdminService adminService, CellService cellService, ChatService chatService, UserService userService, TelegramBot bot){
+		this.adminService = adminService;
+		this.cellService = cellService;
+		this.chatService = chatService;
+		this.userService = userService;
+		this.bot = bot;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(TgbotdemoApplication.class, args);

@@ -38,22 +38,11 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class MainActionsConfig {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private GuildService guildService;
-
-    @Autowired
     private CellService cellService;
-
-    @Autowired
+    private GuildService guildService;
+    private UserService userService;
     private OrderService orderService;
-
-    @Autowired
     private ListenerService listenerService;
-
-    @Autowired
     private TelegramBot bot;
 
     private Keyboard menuKeyboard = new ReplyKeyboardMarkup(
@@ -65,6 +54,16 @@ public class MainActionsConfig {
                     { new KeyboardButton("Сколько гильдии инвестировали в территории") },
                     { new KeyboardButton("Обзор карты") }
             });
+
+    public MainActionsConfig(CellService cellService, GuildService guildService, UserService guildService,
+            OrderService orderService, ListenerService listenerService, TelegramBot bot){
+        this.cellService = cellService;
+        this.guildService = guildService;
+        this.userService = userService;
+        this.orderService = orderService;
+        this.listenerService = listenerService;
+        this.bot = bot;
+    }
 
     @Bean
     public Action<ChatStates, String> start() {
