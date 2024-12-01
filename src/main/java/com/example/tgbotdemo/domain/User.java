@@ -15,6 +15,8 @@ import lombok.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "users")
 public class User {

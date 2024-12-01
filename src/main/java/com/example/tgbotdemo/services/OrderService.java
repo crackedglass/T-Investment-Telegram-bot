@@ -2,7 +2,6 @@ package com.example.tgbotdemo.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +14,16 @@ import com.example.tgbotdemo.domain.*;
 @Slf4j
 @Service
 public class OrderService {
-    @Autowired
+
     private UserService userService;
-    @Autowired
     private OrderRepository orderRepository;
-    @Autowired
     private UserRepository userRepository;
+
+    public OrderService(UserService userService, OrderRepository orderRepository, UserRepository userRepository) {
+        this.userService = userService;
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+    }
 
     @Transactional
     public void create(User user, Cell cell, int amount) {

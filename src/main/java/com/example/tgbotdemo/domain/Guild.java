@@ -1,5 +1,6 @@
 package com.example.tgbotdemo.domain;
 
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -12,6 +13,8 @@ import lombok.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "guilds")
 public class Guild {
@@ -29,16 +32,13 @@ public class Guild {
     @OneToMany(mappedBy = "ownerGuild")
     private Set<Cell> cells;
 
+    @OneToMany(mappedBy = "firstGuild")
+    private List<Coalition> coalitions;
+
     protected Guild() {
     };
 
     public Guild(String name) {
         this.name = name;
     }
-
-    @Override
-    public String toString() {
-        return String.format("Guild[name : %s, users: %s, cells : %s]", name, users.toString(), cells.toString());
-    }
-
 }

@@ -8,6 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
 import com.example.tgbotdemo.domain.*;
 import com.example.tgbotdemo.services.AdminService;
 import com.example.tgbotdemo.services.CellService;
@@ -37,7 +39,8 @@ public class TgbotdemoApplication {
 	private UserService userService;
 	private TelegramBot bot;
 
-	public TgbotdemoApplication(AdminService adminService, CellService cellService, ChatService chatService, UserService userService, TelegramBot bot){
+	public TgbotdemoApplication(AdminService adminService, CellService cellService, ChatService chatService,
+			UserService userService, TelegramBot bot) {
 		this.adminService = adminService;
 		this.cellService = cellService;
 		this.chatService = chatService;
@@ -66,7 +69,7 @@ public class TgbotdemoApplication {
 					for (Map<String, Object> m : map) {
 						int number = (int) m.get("number");
 						int level = (int) m.get("level");
-						List<Object> item = (List<Object>) m.get("neighbours");
+						List<?> item = (List<?>) m.get("neighbours");
 						int[] neighbours = item.stream().mapToInt(x -> (int) x).toArray();
 						Cell newCell = new Cell(number, level, null, neighbours);
 						cellService.save(newCell);

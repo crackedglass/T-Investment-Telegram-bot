@@ -11,6 +11,8 @@ import lombok.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -37,11 +39,4 @@ public class Order {
         this.cell = cell;
         this.amount = amount;
     }
-
-    @Override
-    public String toString() {
-        return String.format("Order[user.username : %s, cell.number : %s, amount : %d]", user.getUsername(),
-                cell.getNumber(), amount);
-    }
-
 }

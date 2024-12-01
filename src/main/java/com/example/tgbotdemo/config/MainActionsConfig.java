@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
@@ -55,8 +54,8 @@ public class MainActionsConfig {
                     { new KeyboardButton("Обзор карты") }
             });
 
-    public MainActionsConfig(CellService cellService, GuildService guildService, UserService guildService,
-            OrderService orderService, ListenerService listenerService, TelegramBot bot){
+    public MainActionsConfig(CellService cellService, GuildService guildService, UserService userService,
+            OrderService orderService, ListenerService listenerService, TelegramBot bot) {
         this.cellService = cellService;
         this.guildService = guildService;
         this.userService = userService;

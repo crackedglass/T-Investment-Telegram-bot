@@ -2,7 +2,6 @@ package com.example.tgbotdemo.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.guard.Guard;
@@ -34,7 +33,7 @@ public class GuardsConfig {
                     { new KeyboardButton("Сколько гильдии инвестировали в территории") }
             });
 
-    public GuardsConfig(AdminService adminService, BlockService blockService, TelegramBot bot){
+    public GuardsConfig(AdminService adminService, BlockService blockService, TelegramBot bot) {
         this.adminService = adminService;
         this.blockService = blockService;
         this.bot = bot;

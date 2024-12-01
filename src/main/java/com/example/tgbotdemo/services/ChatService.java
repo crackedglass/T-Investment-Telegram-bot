@@ -1,6 +1,5 @@
 package com.example.tgbotdemo.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
@@ -21,24 +20,21 @@ import java.util.Map;
 @Slf4j
 @Service
 public class ChatService {
-    @Autowired
+
     private TelegramBot bot;
-
-    @Autowired
     private StateMachineFactory<ChatStates, String> factory;
-
-    @Autowired
     private ListenerService listenerService;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private AdminService adminService;
-
     private Map<String, StateMachine<ChatStates, String>> stateMachines;
 
-    public ChatService() {
+    public ChatService(TelegramBot bot, StateMachineFactory<ChatStates, String> factory,
+            ListenerService listenerService, UserService userService, AdminService adminService) {
+        this.bot = bot;
+        this.factory = factory;
+        this.listenerService = listenerService;
+        this.userService = userService;
+        this.adminService = adminService;
         stateMachines = new HashMap<>();
     }
 

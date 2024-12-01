@@ -1,7 +1,6 @@
 package com.example.tgbotdemo.domain;
 
 import java.util.List;
-import java.util.stream.IntStream;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "cells")
 public class Cell {
@@ -40,6 +43,9 @@ public class Cell {
     @OneToMany(mappedBy = "cell")
     private List<Order> orders;
 
+    @OneToMany(mappedBy = "cell")
+    private List<Coalition> coalitions;
+
     protected Cell() {
     };
 
@@ -49,12 +55,4 @@ public class Cell {
         this.ownerGuild = guild;
         this.neighbours = neighbours;
     }
-
-    @Override
-    public String toString() {
-        return String.format("Cell[number : %d, level: %d, guild: %s, neighbours: %s]", number, level,
-                getOwnerGuild().getName(),
-                String.join(",", IntStream.of(neighbours).boxed().map(String::valueOf).toList()));
-    }
-
 }

@@ -1,7 +1,6 @@
 package com.example.tgbotdemo.services;
 
 import java.util.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.tgbotdemo.repositories.*;
@@ -9,12 +8,16 @@ import com.example.tgbotdemo.domain.*;
 
 @Service
 public class CellService {
-    @Autowired
+
     private CellRepository cellRepository;
-    @Autowired
     private UserService userService;
-    @Autowired
     private GuildService guildService;
+
+    public CellService(CellRepository cellRepository, UserService userService, GuildService guildService) {
+        this.cellRepository = cellRepository;
+        this.userService = userService;
+        this.guildService = guildService;
+    }
 
     public List<Cell> getAllCells() {
         return cellRepository.findAll();

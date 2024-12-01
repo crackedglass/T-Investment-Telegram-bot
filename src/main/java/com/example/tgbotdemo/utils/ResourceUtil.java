@@ -19,7 +19,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -35,17 +34,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ResourceUtil {
-    @Autowired
+
     private UserService userService;
-    @Autowired
     private GuildService guildService;
-    @Autowired
     private OrderService orderService;
-    @Autowired
     private CellService cellService;
 
-    @Autowired
     private Environment environment;
+
+    public ResourceUtil(UserService userService, GuildService guildService, OrderService orderService,
+            CellService cellService, Environment environment) {
+        this.userService = userService;
+        this.guildService = guildService;
+        this.orderService = orderService;
+        this.cellService = cellService;
+        this.environment = environment;
+    }
 
     public File generateTableOfUsers() {
         Workbook workbook = new XSSFWorkbook();
