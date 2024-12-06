@@ -36,8 +36,9 @@ public class CellService {
         List<Cell> guildCells = userGuild.getCells().stream().toList();
         Set<Integer> available = new HashSet<>();
         firstLevel.stream().forEach(item -> available.add(item.getNumber()));
-        guildCells.stream().forEach(item -> available.add(item.getNumber()));
         for (Cell c : guildCells) {
+            if (!available.contains(c.getNumber()))
+                available.add(c.getNumber());
             int[] neighbours = c.getNeighbours();
             for (int i : neighbours)
                 available.add(i);
